@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://logos.lndev.me/sitemap.xml
