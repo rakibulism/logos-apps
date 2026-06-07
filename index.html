@@ -272,6 +272,12 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
   color: #451a03; background: linear-gradient(135deg, #fde68a, #f59e0b); box-shadow: 0 1px 2px rgb(0 0 0 / 0.15); }
 .badge-gold .icon { width: 0.625rem; height: 0.625rem; }
 .row .badge-gold { position: static; }
+.sponsor-ext { position: absolute; top: 0.625rem; left: 0.625rem; display: grid; place-items: center; width: 1.5rem; height: 1.5rem;
+  border-radius: 9999px; border: 1px solid var(--border); background: color-mix(in oklch, var(--background) 95%, transparent);
+  color: var(--muted-foreground); opacity: 0; transform: translateY(2px); transition: opacity .15s, transform .15s; pointer-events: none; }
+.sponsor-ext .icon { width: 0.75rem; height: 0.75rem; }
+.cell.sponsor:hover .sponsor-ext, .cell.sponsor:focus-within .sponsor-ext { opacity: 1; transform: none; }
+@media (hover: none) { .sponsor-ext { opacity: 1; transform: none; } }
 
 /* list view */
 .rows { display: flex; flex-direction: column; border-bottom: 1px solid var(--border); }
@@ -591,7 +597,11 @@ const ic = (k, cls = "icon") =>
   `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
 
 /* ---------- sponsor ---------- */
-const SPONSOR = { n: "lndev-ui", url: "https://www.lndevui.com", tagline: "UI components & templates" };
+const SPONSOR = {
+  n: "lndev-ui",
+  url: "https://www.lndevui.com/?utm_source=logos.lndev.me&utm_medium=referral&utm_campaign=sponsored-card",
+  tagline: "UI components & templates",
+};
 /* shown for any category/type/page filter; hidden only when a search doesn't match its name */
 function sponsorMatches() {
   const tokens = norm(state.q).split(" ").filter(Boolean);
@@ -712,7 +722,8 @@ function rowHtml(it) {
 
 /* ---------- sponsored card ---------- */
 function sponsorCellHtml() {
-  return `<div class="cell sponsor" data-sponsor role="link" tabindex="0" aria-label="${SPONSOR.n} — sponsored, opens ${SPONSOR.url}">
+  return `<div class="cell sponsor" data-sponsor role="link" tabindex="0" aria-label="${SPONSOR.n} — sponsored, opens an external page">
+    <span class="sponsor-ext" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
     <span class="badge-gold">${ic("crown")}Sponsored</span>
     <img src="logos/${SPONSOR.n}.svg" alt="${SPONSOR.n}" loading="lazy" />
     <span class="cname">${SPONSOR.n}</span>
