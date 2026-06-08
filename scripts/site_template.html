@@ -387,8 +387,9 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
 .copymenu-x:hover { background: var(--muted); color: var(--foreground); }
 .copymenu-x .icon { width: 0.875rem; height: 0.875rem; }
 .fmt-tabs { display: flex; flex-wrap: wrap; gap: 0.25rem; }
-.fmt-tab { padding: 0.3125rem 0.5rem; border-radius: 9999px; border: 1px solid var(--border); background: var(--background);
-  font-size: 0.6875rem; font-weight: 500; color: var(--muted-foreground); transition: .12s; }
+.fmt-tab { display: inline-flex; align-items: center; gap: 0.3125rem; padding: 0.3125rem 0.5rem; border-radius: 9999px;
+  border: 1px solid var(--border); background: var(--background); font-size: 0.6875rem; font-weight: 500; color: var(--muted-foreground); transition: .12s; }
+.fmt-tab img { width: 0.8125rem; height: 0.8125rem; object-fit: contain; }
 .fmt-tab:hover { color: var(--foreground); }
 .fmt-tab.active { background: var(--foreground); color: var(--background); border-color: var(--foreground); }
 .lang-toggle { display: flex; gap: 0.25rem; margin-top: 0.625rem; }
@@ -1102,7 +1103,7 @@ const cm = {
 };
 
 cm.tabs.innerHTML = FORMATS.map((f, i) =>
-  `<button class="fmt-tab${i === 0 ? " active" : ""}" type="button" data-fmt="${f.id}">${f.label}</button>`).join("");
+  `<button class="fmt-tab${i === 0 ? " active" : ""}" type="button" data-fmt="${f.id}"><img src="logos/${f.logo}.svg" alt="" />${f.label}</button>`).join("");
 
 function renderLangs() {
   const f = FORMATS.find(x => x.id === cm.fmt);
