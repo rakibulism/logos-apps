@@ -343,6 +343,7 @@ add("pay", """0xgas 10set 1art 1inch 2dai 3ull aart abyss acala acria adapad adc
 # Pick a category key: ai lang fw dev cloud db design social pay
 # prod shop media os mkt sec web corp
 # Example:  add("dev", "my-awesome-tool")
+add("ai", "sarvam sarvam-wordmark")
 # ============================================================
 
 
