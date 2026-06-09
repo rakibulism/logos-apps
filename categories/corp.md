@@ -1,4 +1,4 @@
-# 🏢 Companies & Services <sub>(5676)</sub>
+# 🏢 Companies & Services <sub>(5675)</sub>
 
 [⬅️ Back to the full catalog](../README.md) · [🖼️ Browse & download on the website](https://logos.lndev.me/)
 
