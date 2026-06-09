@@ -22,6 +22,8 @@ PLAIN = {
     "sec":    ("Security & Identity", "shield"),
     "web":    ("Web Standards & Protocols", "globe"),
     "corp":   ("Companies & Services", "building"),
+    "flags":  ("Flags & Nations", "flag"),
+    "sport":  ("Sport & Competitions", "trophy"),
     "other":  ("Others", "box"),
 }
 
