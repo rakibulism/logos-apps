@@ -344,6 +344,7 @@ add("pay", """0xgas 10set 1art 1inch 2dai 3ull aart abyss acala acria adapad adc
 # prod shop media os mkt sec web corp
 # Example:  add("dev", "my-awesome-tool")
 add("ai", "sarvam sarvam-wordmark")
+add("ai", "codemod codemod-wordmark")
 add("corp", "mtn")
 add("pay", "gtco mpesa zenith-bank moniepoint")
 add("shop", "takealot")
