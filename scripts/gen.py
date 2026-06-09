@@ -344,6 +344,9 @@ add("pay", """0xgas 10set 1art 1inch 2dai 3ull aart abyss acala acria adapad adc
 # prod shop media os mkt sec web corp
 # Example:  add("dev", "my-awesome-tool")
 add("ai", "sarvam sarvam-wordmark")
+add("corp", "google-2025")
+add("social", "google-chat-2026")
+add("prod", "google-gmail-2026 google-calendar-2026 google-drive-2026 google-meet-2026 google-docs-2026 google-sheets-2026 google-slides-2026 google-forms-2026 google-keep-2026 google-tasks-2026")
 add("ai", "codemod codemod-wordmark")
 add("corp", "mtn")
 add("pay", "gtco mpesa zenith-bank moniepoint")

@@ -2,10 +2,10 @@
 
 # 🎨 Logos Apps
 
-### A free, open collection of **14,790** clean SVG logos for apps, tools & tech brands.
+### A free, open collection of **14,802** clean SVG logos for apps, tools & tech brands.
 
 <p>
-  <img alt="Logos" src="https://img.shields.io/badge/logos-14790-6366f1?style=for-the-badge" />
+  <img alt="Logos" src="https://img.shields.io/badge/logos-14802-6366f1?style=for-the-badge" />
   <img alt="Format" src="https://img.shields.io/badge/format-SVG-f59e0b?style=for-the-badge" />
   <img alt="Price" src="https://img.shields.io/badge/price-free-22c55e?style=for-the-badge" />
 </p>
@@ -54,16 +54,16 @@ Every logo, organized by category — open a category to see its full table:
 - [☁️ Cloud, Hosting & Infrastructure](./categories/cloud.md) — **562**
 - [🗄️ Databases & Data](./categories/db.md) — **276**
 - [🎨 Design & Creative](./categories/design.md) — **88**
-- [💬 Social & Communication](./categories/social.md) — **152**
+- [💬 Social & Communication](./categories/social.md) — **153**
 - [💳 Payments, Fintech & Crypto](./categories/pay.md) — **2429**
-- [📋 Productivity & Collaboration](./categories/prod.md) — **2984**
+- [📋 Productivity & Collaboration](./categories/prod.md) — **2994**
 - [🛒 E-commerce & CMS](./categories/shop.md) — **102**
 - [🎵 Media & Entertainment](./categories/media.md) — **127**
 - [🖥️ OS, Platforms & Browsers](./categories/os.md) — **137**
 - [📊 Analytics, Marketing & CRM](./categories/mkt.md) — **162**
 - [🔐 Security & Identity](./categories/sec.md) — **202**
 - [🌐 Web Standards & Protocols](./categories/web.md) — **71**
-- [🏢 Companies & Services](./categories/corp.md) — **5676**
+- [🏢 Companies & Services](./categories/corp.md) — **5677**
 - [📦 Others](./categories/other.md) — **41**
 
 > ⚠️ Categories are auto-generated — spotted a logo in the wrong place? PRs welcome!
