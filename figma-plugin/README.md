@@ -9,7 +9,8 @@ new ones are added.
 
 - **Search & insert** — type a brand, click to drop it onto the canvas. Each logo
   lands inside a **fixed square frame** with the SVG scaled to fit (its own aspect
-  ratio preserved, centered). The square size is set in Settings → *Logo size*.
+  ratio preserved, centered). Pick the square size from the toolbar dropdown
+  (24–512 px).
 - **Replace in place** — switch to *Replace* mode, select a logo frame, click a new
   logo to swap it. Because the container is a fixed square, a 200×100 logo and a
   100×200 logo both fit the same box — **the frame size never changes and nothing
