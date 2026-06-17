@@ -4,6 +4,7 @@
 const DEFAULTS = { theme: "system", density: "default", size: 128 };
 const DEFAULT_SIZE = 128;   // each logo lives in a square frame of this size
 const PAD = 0.84;           // the SVG occupies this fraction of the square (rest = padding)
+const WRAP_NAME = "wrap by @rakibulism";   // name of the inner SVG wrapper frame
 
 figma.showUI(__html__, { width: 380, height: 600, themeColors: true });
 
@@ -66,6 +67,7 @@ function isLogoFrame(node) {
 function placeLogoInto(frame, svgString, name) {
   for (const k of frame.children.slice()) k.remove();
   const logo = figma.createNodeFromSvg(svgString);
+  logo.name = WRAP_NAME;          // inner SVG wrapper frame
   fitInside(logo, frame.width, frame.height, PAD);
   frame.appendChild(logo);
   centerIn(logo, frame);
