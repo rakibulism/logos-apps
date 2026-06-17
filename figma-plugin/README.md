@@ -7,6 +7,10 @@ new ones are added.
 
 ## Features
 
+- **Two sources** — switch between **Brands Logo** (this repo, 15,000+ logos) and
+  **svgl** ([svgl.app](https://svgl.app), ~660 curated brand icons) from the tabs at
+  the top. svgl images load from svgl.app; the SVG is fetched from the CORS-enabled
+  `api.svgl.app` on insert.
 - **Search & insert** — type a brand, click to drop it onto the canvas. Each logo
   lands inside a **fixed square frame** with the SVG scaled to fit (its own aspect
   ratio preserved, centered). Pick the size from the toolbar dropdown — a fixed
