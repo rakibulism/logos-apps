@@ -4,6 +4,12 @@
     {
       "date": "2026-06-18",
       "tag": "new",
+      "title": "Export sizes + keyboard shortcuts",
+      "body": "Pick an export size for copied/downloaded SVGs from the toolbar (incl. Custom). Press ? to see all shortcuts — F install, N notifications, G GitHub, L/D/D-D themes, Shift+H/D/U to navigate. Shift-click a copy button still grabs the raw SVG instantly, now with a toast."
+    },
+    {
+      "date": "2026-06-18",
+      "tag": "new",
       "title": "Figma plugin launched",
       "body": "Search, insert, replace-in-place and resize 15,000+ logos without leaving Figma. The plugin syncs live from this repo, so new logos show up automatically."
     },

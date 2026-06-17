@@ -82,6 +82,20 @@
   .feat .card { margin: 0; }
   .feat b { display: block; margin-bottom: 0.2rem; }
   .feat span { color: var(--muted-foreground); font-size: 0.9rem; }
+  .sc-overlay { position: fixed; inset: 0; z-index: 95; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(0,0,0,.45); }
+  .sc-overlay.open { display: flex; }
+  .sc-modal { width: min(34rem, 100%); max-height: 86vh; overflow-y: auto; background: var(--background); border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.25rem 1.4rem 1.5rem; box-shadow: 0 24px 60px rgba(0,0,0,.32); }
+  .sc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; }
+  .sc-head h2 { font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .sc-head button { background: none; border: none; cursor: pointer; color: var(--muted-foreground); width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; }
+  .sc-head button:hover { background: var(--muted); }
+  .sc-cols { display: grid; gap: 1.1rem 2rem; grid-template-columns: 1fr; }
+  @media (min-width: 480px) { .sc-cols { grid-template-columns: 1fr 1fr; } }
+  .sc-section h3 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted-foreground); margin: 0 0 0.4rem; }
+  .sc-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.38rem 0; font-size: 0.875rem; }
+  .sc-keys { display: inline-flex; gap: 0.25rem; align-items: center; flex: none; }
+  .sc-keys kbd { font-family: ui-monospace, monospace; font-size: 0.72rem; min-width: 1.45rem; text-align: center; padding: 0.16rem 0.4rem; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; background: var(--muted); color: var(--foreground); }
+  .sc-keys .plus { color: var(--muted-foreground); font-size: 0.72rem; }
   footer.site { border-top: 1px solid var(--border); padding: 2rem 0; color: var(--muted-foreground); font-size: 0.85rem; }
   footer.site a { color: var(--muted-foreground); }
 </style>
@@ -99,11 +113,11 @@
       <a href="updates.html">Updates</a>
     </nav>
     <div class="actions">
-      <a class="btn-figma" href="https://www.figma.com/community/plugin/0000000000/brands-logo" target="_blank" rel="noreferrer">
+      <a class="btn-figma" id="installFigma" href="https://www.figma.com/community/plugin/0000000000/brands-logo" target="_blank" rel="noreferrer">
         <svg viewBox="0 0 24 24" fill="none"><path d="M8.5 3h3.5v6H8.5a3 3 0 0 1 0-6Z" fill="#f24e1e"/><path d="M12 3h3.5a3 3 0 0 1 0 6H12V3Z" fill="#ff7262"/><path d="M8.5 9H12v6H8.5a3 3 0 0 1 0-6Z" fill="#a259ff"/><path d="M12 12a3 3 0 1 1 3.5 2.955A3 3 0 0 1 12 12Z" fill="#1abcfe"/><path d="M8.5 15H12v3a3 3 0 1 1-3.5-3Z" fill="#0acf83"/></svg>
         <span>Install in Figma</span>
       </a>
-      <a class="hbtn" href="https://github.com/rakibulism/brands-logo" target="_blank" rel="noreferrer" aria-label="GitHub repository">
+      <a class="hbtn" id="ghLink" href="https://github.com/rakibulism/brands-logo" target="_blank" rel="noreferrer" aria-label="GitHub repository">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.475 2 2 6.475 2 12a9.994 9.994 0 0 0 6.838 9.488c.5.087.687-.213.687-.475 0-.237-.013-1.024-.013-1.862-2.512.463-3.162-.612-3.362-1.175-.113-.288-.6-1.175-1.025-1.413-.35-.187-.85-.65-.013-.662.788-.013 1.35.725 1.538 1.025.9 1.512 2.337 1.087 2.912.825.088-.65.35-1.087.638-1.337-2.225-.25-4.55-1.113-4.55-4.938 0-1.088.387-1.987 1.025-2.687-.1-.25-.45-1.275.1-2.65 0 0 .837-.262 2.75 1.025a9.282 9.282 0 0 1 2.5-.337c.85 0 1.7.112 2.5.337 1.912-1.3 2.75-1.025 2.75-1.025.55 1.375.2 2.4.1 2.65.637.7 1.025 1.587 1.025 2.687 0 3.838-2.337 4.688-4.562 4.938.362.312.675.912.675 1.85 0 1.337-.013 2.412-.013 2.75 0 .262.188.574.688.474A10.016 10.016 0 0 0 22 12c0-5.525-4.475-10-10-10z"/></svg>
       </a>
       <div class="theme-menu">
@@ -139,7 +153,9 @@
     <ul>
       <li><b>Search</b> any brand by name — results filter as you type.</li>
       <li><b>Filter</b> by category and toggle between icon and wordmark variants.</li>
-      <li><b>Download or copy</b> any logo's SVG in one click from the gallery.</li>
+      <li><b>Download or copy</b> any logo's SVG in one click — <b>Shift</b>+click the copy button grabs the raw SVG instantly.</li>
+      <li><b>Size</b> — pick an export size (or Custom) from the toolbar; copies and downloads are scaled to it.</li>
+      <li><b>Keyboard shortcuts</b> — press <code>?</code> anywhere to see them all.</li>
       <li><b>Theme</b> follows your system and can be toggled from the header.</li>
     </ul>
 
@@ -187,9 +203,34 @@ const svg = await (await fetch(m.rawBase + "react.svg")).text();</code></pre>
 
 <footer class="site">
   <div class="container">
-    © <span id="year"></span> · <a href="https://github.com/rakibulism/brands-logo" target="_blank" rel="noreferrer">GitHub</a> · All logos are trademarks of their respective owners.
+    © <span id="year"></span> · <a href="https://github.com/rakibulism/brands-logo" target="_blank" rel="noreferrer">GitHub</a> · <a href="#" id="scOpenLink">Keyboard shortcuts</a> · All logos are trademarks of their respective owners.
   </div>
 </footer>
+
+<div class="sc-overlay" id="scOverlay">
+  <div class="sc-modal" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+    <div class="sc-head"><h2>Keyboard shortcuts</h2><button id="scClose" type="button" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="sc-cols">
+      <div class="sc-section"><h3>Navigate</h3>
+        <div class="sc-item"><span>Home</span><span class="sc-keys"><kbd>Shift</kbd><span class="plus">+</span><kbd>H</kbd></span></div>
+        <div class="sc-item"><span>Docs</span><span class="sc-keys"><kbd>Shift</kbd><span class="plus">+</span><kbd>D</kbd></span></div>
+        <div class="sc-item"><span>Updates</span><span class="sc-keys"><kbd>Shift</kbd><span class="plus">+</span><kbd>U</kbd></span></div>
+      </div>
+      <div class="sc-section"><h3>Actions</h3>
+        <div class="sc-item"><span>Install Figma plugin</span><span class="sc-keys"><kbd>F</kbd></span></div>
+        <div class="sc-item"><span>GitHub</span><span class="sc-keys"><kbd>G</kbd></span></div>
+      </div>
+      <div class="sc-section"><h3>Theme</h3>
+        <div class="sc-item"><span>Light</span><span class="sc-keys"><kbd>L</kbd></span></div>
+        <div class="sc-item"><span>Dark</span><span class="sc-keys"><kbd>D</kbd></span></div>
+        <div class="sc-item"><span>Device</span><span class="sc-keys"><kbd>D</kbd><kbd>D</kbd></span></div>
+      </div>
+      <div class="sc-section"><h3>Help</h3>
+        <div class="sc-item"><span>This dialog</span><span class="sc-keys"><kbd>?</kbd></span></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
   (function () {
@@ -208,8 +249,42 @@ const svg = await (await fetch(m.rawBase + "react.svg")).text();</code></pre>
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") pop.hidden = true; });
     mql.addEventListener("change", function () { if (current() === "system") apply(); });
     apply();
+    window.__setTheme = function (m) { localStorage.setItem("theme", m); apply(); };
   })();
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* keyboard shortcuts */
+  (function () {
+    var overlay = document.getElementById("scOverlay");
+    var openSc = function () { overlay.classList.add("open"); };
+    var closeSc = function () { overlay.classList.remove("open"); };
+    document.getElementById("scClose").addEventListener("click", closeSc);
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) closeSc(); });
+    var link = document.getElementById("scOpenLink");
+    if (link) link.addEventListener("click", function (e) { e.preventDefault(); openSc(); });
+    var editable = function (t) { return t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable); };
+    var open = function (u) { window.open(u, "_blank", "noopener"); };
+    var lastD = 0;
+    document.addEventListener("keydown", function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "Escape") { closeSc(); return; }
+      if (editable(e.target)) return;
+      if (e.key === "?") { e.preventDefault(); overlay.classList.contains("open") ? closeSc() : openSc(); return; }
+      if (e.shiftKey) {
+        var k = e.key.toLowerCase();
+        if (k === "u") { e.preventDefault(); location.href = "updates.html"; }
+        else if (k === "d") { e.preventDefault(); location.href = "docs.html"; }
+        else if (k === "h") { e.preventDefault(); location.href = "./"; }
+        return;
+      }
+      switch (e.key.toLowerCase()) {
+        case "f": { e.preventDefault(); var a = document.getElementById("installFigma"); if (a) open(a.href); break; }
+        case "g": { e.preventDefault(); var a2 = document.getElementById("ghLink"); if (a2) open(a2.href); break; }
+        case "l": e.preventDefault(); window.__setTheme && window.__setTheme("light"); break;
+        case "d": { e.preventDefault(); var now = Date.now(); if (now - lastD < 450) { window.__setTheme && window.__setTheme("system"); lastD = 0; } else { window.__setTheme && window.__setTheme("dark"); lastD = now; } break; }
+      }
+    });
+  })();
 </script>
 </body>
 </html>
