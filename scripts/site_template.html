@@ -7,7 +7,6 @@
 <meta name="description" content="__TOTAL__ free SVG logos for apps, dev tools and tech brands. Search, filter by category, download or copy in one click." />
 <link rel="canonical" href="__URL__" />
 <meta name="robots" content="index, follow" />
-<meta name="author" content="ln-dev7" />
 <meta name="theme-color" content="oklch(1 0 0)" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="oklch(0.145 0 0)" media="(prefers-color-scheme: dark)" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -27,7 +26,6 @@
 <meta name="twitter:title" content="Logos — __TOTAL__ free SVG logos, ready to drop in" />
 <meta name="twitter:description" content="__TOTAL__ free SVG logos for apps, dev tools and tech brands. Search, filter, download or copy in one click." />
 <meta name="twitter:image" content="__URL__assets/og.png" />
-<meta name="twitter:creator" content="@ln_dev7" />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -48,8 +46,7 @@
       "name": "Logos — __TOTAL__ free SVG logos",
       "url": "__URL__",
       "description": "Search, filter by category, download or copy __TOTAL__ SVG logos in one click.",
-      "isPartOf": { "@type": "WebSite", "url": "__URL__" },
-      "author": { "@type": "Person", "name": "Leonel Ngoya", "alternateName": "ln-dev7", "url": "https://lndev.me" }
+      "isPartOf": { "@type": "WebSite", "url": "__URL__" }
     }
   ]
 }
@@ -477,7 +474,6 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
         </svg>
         <span class="name">logos</span>
       </a>
-      <a class="by" href="https://lndev.me" target="_blank" rel="noreferrer">by lndev</a>
     </div>
     <div class="header-actions">
       <button class="btn-sponsor" id="sponsorOpen" type="button" aria-haspopup="dialog">
@@ -643,7 +639,7 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
       </span>
       <span>Only 5 spots — <strong>4 left</strong></span>
     </div>
-    <a class="btn-gold" href="https://lndev.mychariow.shop/prd_7e3icn8t" target="_blank" rel="noreferrer">
+    <a class="btn-gold" href="https://github.com/__REPO__/issues" target="_blank" rel="noreferrer">
       Become a sponsor · $40 / 30 days
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
     </a>
@@ -668,7 +664,6 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
             </svg>
             <span class="name">logos</span>
           </a>
-          <a class="by" href="https://lndev.me" target="_blank" rel="noreferrer">by lndev</a>
         </div>
         <p class="tagline">__TOTAL__ free SVG logos for apps, dev tools and tech brands. Search, filter, grab.</p>
         <button class="theme-toggle" id="themeToggleFooter" type="button" aria-label="Toggle theme">
@@ -683,16 +678,10 @@ html:not(.dark) .theme-toggle .seg-light, .dark .theme-toggle .seg-dark { backgr
           <a href="https://github.com/__REPO__/blob/master/CONTRIBUTING.md" target="_blank" rel="noreferrer">Contribute a logo <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
           <a href="https://github.com/__REPO__/issues" target="_blank" rel="noreferrer">Request a logo <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </div>
-        <div class="footer-col">
-          <h4>Author</h4>
-          <a href="https://lndev.me" target="_blank" rel="noreferrer">lndev.me <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="https://www.lndevui.com" target="_blank" rel="noreferrer">lndev-ui <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="https://x.com/ln_dev7" target="_blank" rel="noreferrer">X / Twitter <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-        </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© <span id="year"></span> ln-dev7. All logos are trademarks of their respective owners.</span>
+      <span>© <span id="year"></span> All logos are trademarks of their respective owners.</span>
       <span>Provided for convenience — check each brand's guidelines before use.</span>
     </div>
   </div>
@@ -742,9 +731,9 @@ const ic = (k, cls = "icon") =>
 
 /* ---------- sponsor ---------- */
 const SPONSOR = {
-  n: "lndev-ui",
-  url: "https://www.lndevui.com/?utm_source=logos.lndev.me&utm_medium=referral&utm_campaign=sponsored-card",
-  tagline: "UI components & templates",
+  n: "",
+  url: "https://github.com/__REPO__/issues",
+  tagline: "",
 };
 /* shown for any category/type/page filter; hidden only when a search doesn't match its name */
 function sponsorMatches() {
@@ -919,7 +908,7 @@ function update(scrollTop) {
   if (state.sort === "desc") list = list.slice().reverse();
   const results = document.getElementById("results");
   const bar = document.getElementById("paginationBar");
-  const showSponsor = sponsorMatches();
+  const showSponsor = false;
 
   if (!list.length) {
     results.innerHTML = `<div class="empty">
@@ -927,7 +916,6 @@ function update(scrollTop) {
       <p class="d">Try a brand like <code>react</code>, <code>stripe</code> or <code>figma</code> — or clear your filters.</p>
       <button type="button" id="emptyClear">Clear filters</button>
       <a class="contribute-link" href="https://github.com/__REPO__/blob/master/CONTRIBUTING.md" target="_blank" rel="noreferrer">Can’t find it? Contribute it to the collection →</a>
-      <div class="empty-sponsor">${sponsorCellHtml()}</div>
     </div>`;
     bar.hidden = true;
     document.getElementById("emptyClear").onclick = clearAll;

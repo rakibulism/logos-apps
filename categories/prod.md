@@ -1,6 +1,6 @@
 # 📋 Productivity & Collaboration <sub>(2943)</sub>
 
-[⬅️ Back to the full catalog](../README.md) · [🖼️ Browse & download on the website](https://logos.lndev.me/)
+[⬅️ Back to the full catalog](../README.md) · [🖼️ Browse & download on the website](https://rakibulism.github.io/brands-logo/)
 
 Page **1** · [2](./prod-2.md)
 

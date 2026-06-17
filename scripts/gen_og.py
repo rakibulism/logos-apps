@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate og.png (1200x630), favicon.svg and apple-touch-icon.png for logos.lndev.me."""
+"""Generate og.png (1200x630), favicon.svg and apple-touch-icon.png for the logos gallery."""
 import os, subprocess
 from PIL import Image, ImageDraw, ImageFont
 
@@ -53,7 +53,6 @@ rrect(mx + t + g, my, t, outline=FG)
 rrect(mx, my + t + g, t, outline=FG)
 rrect(mx + t + g, my + t + g, t, fill=FG)
 d.text((mx + 2 * t + g + 18, my + t + g - 12), "logos", font=f_brand, fill=FG)
-d.text((mx + 2 * t + g + 130, my + t + g - 8), "by lndev", font=ImageFont.truetype(reg, 24), fill=MUTED)
 
 # title + subtitle
 TOTAL = len([f for f in os.listdir(os.path.join(SRC, "logos")) if f.endswith(".svg")])
@@ -61,7 +60,7 @@ d.text((110, 258), f"{TOTAL:,} free SVG logos,", font=f_title, fill=FG)
 d.text((110, 316), "ready to drop in.", font=f_title, fill=FG)
 d.text((110, 412), "Search, filter by category,", font=f_sub, fill=MUTED)
 d.text((110, 448), "download or copy in one click.", font=f_sub, fill=MUTED)
-d.text((110, 525), "logos.lndev.me", font=ImageFont.truetype(bold, 26), fill=MUTED)
+d.text((110, 525), "rakibulism.github.io/brands-logo", font=ImageFont.truetype(bold, 26), fill=MUTED)
 
 # row of real logos on the right
 logos = ["react", "figma", "vue", "slack", "firebase", "tailwindcss", "chrome", "spotify", "notion"]

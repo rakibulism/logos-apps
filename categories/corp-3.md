@@ -1,6 +1,6 @@
 # 🏢 Companies & Services <sub>(5641)</sub>
 
-[⬅️ Back to the full catalog](../README.md) · [🖼️ Browse & download on the website](https://logos.lndev.me/)
+[⬅️ Back to the full catalog](../README.md) · [🖼️ Browse & download on the website](https://rakibulism.github.io/brands-logo/)
 
 Page [1](./corp.md) · [2](./corp-2.md) · **3**
 

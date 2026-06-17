@@ -4,8 +4,8 @@ import os, json, html
 
 import os as _os
 SRC = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-REPO = "ln-dev7/logos-apps"
-PAGES_URL = "https://logos.lndev.me/"
+REPO = "rakibulism/brands-logo"
+PAGES_URL = "https://rakibulism.github.io/brands-logo/"
 ZIP_URL = f"https://github.com/{REPO}/archive/refs/heads/master.zip"
 
 CATS = [
@@ -205,7 +205,7 @@ add("prod", "aha")
 add("shop", "alfresco craftcms")
 add("db", "appbase appbaseio cloudera datasette risingwave altair")
 add("dev", "architect beats buddy compose conan-io embedly jsdom vector-timber bitnami")
-add("fw", "flyjs hoodie immutable blockus lndev-ui shadcn-ui")
+add("fw", "flyjs hoodie immutable blockus shadcn-ui")
 add("social", "skype")
 add("mkt", "base")
 
@@ -548,7 +548,7 @@ The code, website and organization of this repository are released under the [MI
 
 <div align="center">
 
-Made with ❤️ by [**ln-dev7**](https://github.com/ln-dev7) — if this saved you time, drop a ⭐!
+If this saved you time, drop a ⭐!
 
 </div>
 """
@@ -620,7 +620,7 @@ footer a{color:var(--accent)}
   <div id="count"></div>
   <div id="content"></div>
 </main>
-<footer>Logos are trademarks of their respective owners. Made with ❤️ by <a href="https://github.com/ln-dev7">ln-dev7</a>.</footer>
+<footer>Logos are trademarks of their respective owners.</footer>
 <script>
 const DATA = __DATA__;
 const ALL = "All";

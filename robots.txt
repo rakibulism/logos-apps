@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://logos.lndev.me/assets/sitemap.xml
+Sitemap: https://rakibulism.github.io/brands-logo/assets/sitemap.xml

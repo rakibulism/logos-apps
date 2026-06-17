@@ -2,24 +2,24 @@
 
 # 🎨 Logos Apps
 
-### A free, open collection of **15,015** clean SVG logos for apps, tools & tech brands.
+### A free, open collection of **15,014** clean SVG logos for apps, tools & tech brands.
 
 <p>
-  <img alt="Logos" src="https://img.shields.io/badge/logos-15015-6366f1?style=for-the-badge" />
+  <img alt="Logos" src="https://img.shields.io/badge/logos-15014-6366f1?style=for-the-badge" />
   <img alt="Format" src="https://img.shields.io/badge/format-SVG-f59e0b?style=for-the-badge" />
   <img alt="Price" src="https://img.shields.io/badge/price-free-22c55e?style=for-the-badge" />
 </p>
 
 <p>
-  <a href="https://github.com/ln-dev7/logos-apps/archive/refs/heads/master.zip">
+  <a href="https://github.com/rakibulism/brands-logo/archive/refs/heads/master.zip">
     <img alt="Download all" src="https://img.shields.io/badge/⬇️_Download_all_logos-.zip-111827?style=for-the-badge" />
   </a>
-  <a href="https://logos.lndev.me/">
+  <a href="https://rakibulism.github.io/brands-logo/">
     <img alt="Browse the gallery" src="https://img.shields.io/badge/🖼️_Browse_&_download_1--click-website-3b82f6?style=for-the-badge" />
   </a>
 </p>
 
-**[🖼️ Open the interactive gallery](https://logos.lndev.me/)** — search, filter by category, and download any logo in one click.
+**[🖼️ Open the interactive gallery](https://rakibulism.github.io/brands-logo/)** — search, filter by category, and download any logo in one click.
 
 </div>
 
@@ -27,17 +27,17 @@
 
 ## 🚀 Quick start
 
-**Download everything:** [grab the full pack (.zip)](https://github.com/ln-dev7/logos-apps/archive/refs/heads/master.zip) · **Clone:** `git clone https://github.com/ln-dev7/logos-apps.git`
+**Download everything:** [grab the full pack (.zip)](https://github.com/rakibulism/brands-logo/archive/refs/heads/master.zip) · **Clone:** `git clone https://github.com/rakibulism/brands-logo.git`
 
 **Hotlink a single logo:**
 
 ```html
-<img src="https://raw.githubusercontent.com/ln-dev7/logos-apps/master/logos/github.svg" height="32" alt="GitHub" />
+<img src="https://raw.githubusercontent.com/rakibulism/brands-logo/master/logos/github.svg" height="32" alt="GitHub" />
 ```
 
 **Naming convention:** `brand.svg` = icon only · `brand-wordmark.svg` = logotype (icon + name).
 
-> 💡 In the category tables, **click any icon** to open its file — then use GitHub's download button, or visit the [gallery](https://logos.lndev.me/) for true 1-click downloads.
+> 💡 In the category tables, **click any icon** to open its file — then use GitHub's download button, or visit the [gallery](https://rakibulism.github.io/brands-logo/) for true 1-click downloads.
 
 ---
 
@@ -49,7 +49,7 @@ Every logo, organized by category — open a category to see its full table:
 
 - [🤖 AI & Machine Learning](./categories/ai.md) — **142**
 - [💻 Languages & Runtimes](./categories/lang.md) — **161**
-- [⚛️ Frameworks & UI Libraries](./categories/fw.md) — **498**
+- [⚛️ Frameworks & UI Libraries](./categories/fw.md) — **497**
 - [🛠️ Dev Tools, CI/CD & Testing](./categories/dev.md) — **976**
 - [☁️ Cloud, Hosting & Infrastructure](./categories/cloud.md) — **559**
 - [🗄️ Databases & Data](./categories/db.md) — **276**
@@ -86,6 +86,6 @@ The code, website and organization of this repository are released under the [MI
 
 <div align="center">
 
-Made with ❤️ by [**ln-dev7**](https://github.com/ln-dev7) — if this saved you time, drop a ⭐!
+If this saved you time, drop a ⭐!
 
 </div>
