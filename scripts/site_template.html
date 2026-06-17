@@ -362,6 +362,15 @@ svg.icon { width: 1em; height: 1em; flex: none; }
   padding: 0 0.5rem 0.875rem; opacity: 0; transition: opacity .15s; pointer-events: none; }
 .cell:hover .cell-actions, .cell:focus-within .cell-actions { opacity: 1; pointer-events: auto; }
 @media (hover: none) { .cell-actions { opacity: 1; pointer-events: auto; } }
+/* favorite (heart) button */
+.favbtn { cursor: pointer; background: none; border: 0; color: inherit; }
+.favbtn.on { color: #ef4444; }
+.favbtn.on .icon { fill: #ef4444; }
+.cell > .favbtn { position: absolute; top: 0.5rem; right: 0.5rem; z-index: 2; display: grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 9999px; color: var(--muted-foreground); background: color-mix(in oklch, var(--background) 55%, transparent); opacity: 0; transition: opacity .15s, color .15s, background .15s; }
+.cell > .favbtn .icon { width: 0.95rem; height: 0.95rem; }
+.cell:hover > .favbtn, .cell:focus-within > .favbtn, .cell > .favbtn.on { opacity: 1; }
+.cell > .favbtn:hover { color: #ef4444; background: var(--muted); }
+@media (hover: none) { .cell > .favbtn { opacity: 1; } }
 .pillbtn { display: inline-flex; height: 1.875rem; align-items: center; gap: 0.3125rem; border-radius: 9999px; border: 1px solid var(--border);
   background: color-mix(in oklch, var(--background) 95%, transparent); padding-inline: 0.75rem; font-size: 0.6875rem; font-weight: 500;
   color: var(--foreground); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); backdrop-filter: blur(8px); transition: background .15s; }
@@ -901,6 +910,7 @@ const I = {
   chevL: '<path d="m15 18-6-6 6-6"/>',
   chevR: '<path d="m9 18 6-6-6-6"/>',
   crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.735H5.81a1 1 0 0 1-.957-.735L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>',
+  heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>',
 };
 const ic = (k, cls = "icon") =>
   `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[k]}</svg>`;
@@ -929,11 +939,17 @@ ALL_ITEMS.sort((a, b) => a.n.localeCompare(b.n));
 const TOTAL = ALL_ITEMS.length;
 const WM_TOTAL = ALL_ITEMS.filter(i => i.wm).length;
 
+/* ---------- favorites (localStorage) ---------- */
+let favs;
+try { favs = new Set(JSON.parse(localStorage.getItem("logos_favorites") || "[]")); }
+catch (e) { favs = new Set(); }
+function saveFavs() { localStorage.setItem("logos_favorites", JSON.stringify([...favs])); }
+
 /* ---------- state (synced to URL) ---------- */
 const params = new URLSearchParams(location.search);
 const state = {
   q: params.get("q") || "",
-  cat: CATS.some(c => c.key === params.get("cat")) ? params.get("cat") : "all",
+  cat: (params.get("cat") === "favorites" || CATS.some(c => c.key === params.get("cat"))) ? params.get("cat") : "all",
   type: ["icon", "wordmark"].includes(params.get("type")) ? params.get("type") : "all",
   page: Math.max(1, parseInt(params.get("page") || "1", 10) || 1),
   perPage: PER_PAGE_OPTIONS.includes(parseInt(params.get("per_page"), 10)) ? parseInt(params.get("per_page"), 10) : DEFAULT_PER_PAGE,
@@ -958,7 +974,8 @@ const norm = s => s.toLowerCase().replace(/[-_/]/g, " ").replace(/\s+/g, " ").tr
 function filtered() {
   const tokens = norm(state.q).split(" ").filter(Boolean);
   return ALL_ITEMS.filter(it => {
-    if (state.cat !== "all" && it.key !== state.cat) return false;
+    if (state.cat === "favorites") { if (!favs.has(it.n)) return false; }
+    else if (state.cat !== "all" && it.key !== state.cat) return false;
     if (state.type === "icon" && it.wm) return false;
     if (state.type === "wordmark" && !it.wm) return false;
     if (!tokens.length) return true;
@@ -983,6 +1000,7 @@ function filtersHtml() {
     <button type="button" class="sort-btn" data-sort title="${sortTip}" aria-label="${sortTip}">${ic(state.sort === "asc" ? "azDown" : "zaUp")}</button>
   </div><div class="filter-list">`;
   h += pill(state.cat === "all", "grid", "All categories", TOTAL, 'data-cat="all"');
+  h += pill(state.cat === "favorites", "heart", "Favorites", favs.size, 'data-cat="favorites"');
   for (const c of CATS) h += pill(state.cat === c.key, c.icon, c.name, c.items.length, `data-cat="${c.key}"`);
   h += `</div></div>`;
   return h;
@@ -1015,6 +1033,7 @@ function renderFilters() {
 const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 function cellHtml(it) {
   return `<div class="cell">
+    <button class="favbtn${favs.has(it.n) ? " on" : ""}" type="button" data-fav="${esc(it.n)}" aria-pressed="${favs.has(it.n)}" aria-label="Favorite ${esc(it.n)}">${ic("heart")}</button>
     <img src="logos/${it.n}.svg" alt="${esc(it.n)}" loading="lazy" />
     <span class="cname">${esc(it.n)}</span>
     <div class="cell-actions">
@@ -1031,6 +1050,7 @@ function rowHtml(it) {
     </div>
     <div class="right">
       <span class="typetag">${it.wm ? "wordmark" : "icon"}</span>
+      <button class="iconbtn favbtn${favs.has(it.n) ? " on" : ""}" type="button" data-fav="${esc(it.n)}" aria-pressed="${favs.has(it.n)}" aria-label="Favorite ${esc(it.n)}">${ic("heart")}</button>
       <a class="iconbtn" href="logos/${it.n}.svg" download="${it.n}.svg" aria-label="Download ${esc(it.n)}">${ic("download")}</a>
       <button class="iconbtn" type="button" data-copy="${it.n}" aria-label="Copy ${esc(it.n)} SVG">${ic("copy")}</button>
     </div>
@@ -1087,12 +1107,19 @@ function update(scrollTop) {
   const showSponsor = false;
 
   if (!list.length) {
-    results.innerHTML = `<div class="empty">
-      <p class="t">No logo matches “${esc(state.q)}”.</p>
-      <p class="d">Try a brand like <code>react</code>, <code>stripe</code> or <code>figma</code> — or clear your filters.</p>
-      <button type="button" id="emptyClear">Clear filters</button>
-      <a class="contribute-link" href="https://github.com/__REPO__/blob/master/CONTRIBUTING.md" target="_blank" rel="noreferrer">Can’t find it? Contribute it to the collection →</a>
-    </div>`;
+    const favEmpty = state.cat === "favorites" && !state.q;
+    results.innerHTML = favEmpty
+      ? `<div class="empty">
+        <p class="t">No favorites yet.</p>
+        <p class="d">Tap the ${ic("heart")} on any logo to save it here — your favorites stay on this device.</p>
+        <button type="button" id="emptyClear">Browse all logos</button>
+      </div>`
+      : `<div class="empty">
+        <p class="t">No logo matches “${esc(state.q)}”.</p>
+        <p class="d">Try a brand like <code>react</code>, <code>stripe</code> or <code>figma</code> — or clear your filters.</p>
+        <button type="button" id="emptyClear">Clear filters</button>
+        <a class="contribute-link" href="https://github.com/__REPO__/blob/master/CONTRIBUTING.md" target="_blank" rel="noreferrer">Can’t find it? Contribute it to the collection →</a>
+      </div>`;
     bar.hidden = true;
     document.getElementById("emptyClear").onclick = clearAll;
     return;
@@ -1255,6 +1282,24 @@ document.addEventListener("click", async e => {
     return;
   }
   openCopyMenu(b.dataset.copy, b);        // plain click → multi-format menu
+});
+
+/* ---------- favorites toggle ---------- */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-fav]");
+  if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const n = b.dataset.fav;
+  const now = !favs.has(n);
+  if (now) favs.add(n); else favs.delete(n);
+  saveFavs();
+  document.querySelectorAll(`[data-fav="${CSS.escape(n)}"]`).forEach(el => {
+    el.classList.toggle("on", now);
+    el.setAttribute("aria-pressed", String(now));
+  });
+  renderFilters();                         // refresh the Favorites count
+  if (state.cat === "favorites" && !now) update();  // drop the unfavorited card
+  toast(now ? "Added " + n + " to favorites" : "Removed " + n + " from favorites", now);
 });
 
 // Download links carry the chosen export size (Original = native download).
