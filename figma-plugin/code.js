@@ -6,12 +6,19 @@ const DEFAULTS = { theme: "system", density: "default" };
 figma.showUI(__html__, { width: 380, height: 600, themeColors: true });
 
 // ---------- settings persistence (figma.clientStorage) ----------
+// Never let a storage hiccup break the rest of the plugin.
 async function loadSettings() {
-  const s = await figma.clientStorage.getAsync("bl_settings");
-  return Object.assign({}, DEFAULTS, s || {});
+  try {
+    const s = await figma.clientStorage.getAsync("bl_settings");
+    return Object.assign({}, DEFAULTS, s || {});
+  } catch (e) {
+    return Object.assign({}, DEFAULTS);
+  }
 }
 async function saveSettings(s) {
-  await figma.clientStorage.setAsync("bl_settings", s);
+  try {
+    await figma.clientStorage.setAsync("bl_settings", s);
+  } catch (e) { /* ignore */ }
 }
 
 // ---------- selection reporting ----------
@@ -44,9 +51,10 @@ figma.ui.onmessage = async (msg) => {
   try {
     switch (msg.type) {
       case "ready": {
+        // Sync the current selection first so it never depends on storage.
+        postSelection();
         const settings = await loadSettings();
         figma.ui.postMessage({ type: "settings", settings });
-        postSelection();
         break;
       }
 

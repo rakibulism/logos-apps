@@ -308,9 +308,8 @@
     var cell = e.target.closest(".cell");
     if (!cell) return;
     var name = cell.getAttribute("data-n");
-    if (state.mode === "replace" && !state.hasSel) {
-      toast("Select a layer in Figma first"); return;
-    }
+    // Don't gate on a cached flag — the main thread checks the live selection
+    // and notifies if nothing is selected (more reliable across timing/storage).
     cell.style.opacity = ".4";
     fetch(state.rawBase + name + ".svg", { cache: "force-cache" })
       .then(function (r) { return r.text(); })
