@@ -9,13 +9,14 @@ new ones are added.
 
 - **Search & insert** — type a brand, click to drop it onto the canvas. Each logo
   lands inside a **fixed square frame** with the SVG scaled to fit (its own aspect
-  ratio preserved, centered). Pick the square size from the toolbar dropdown
-  (24–512 px).
-- **Replace in place** — switch to *Replace* mode, select a logo frame, click a new
-  logo to swap it. Because the container is a fixed square, a 200×100 logo and a
-  100×200 logo both fit the same box — **the frame size never changes and nothing
-  distorts**. (Select a non-logo layer and it's replaced with a square logo frame
-  centered on its slot.)
+  ratio preserved, centered). Pick the size from the toolbar dropdown — a fixed
+  square (24–512 px or **Custom…**), or **Auto size** to match whatever
+  frame / rectangle / image you have selected (any dimensions).
+- **Replace in place** — switch to *Replace* mode, select a layer, click a new logo
+  to swap it. With **Auto size** the logo takes the selected layer's exact bounds,
+  so you can fill any existing frame, rectangle or image of any size. With a fixed
+  size it drops a square logo frame on the slot. Either way the logo fits inside
+  (aspect ratio preserved) — **nothing distorts**.
 - **Resize** — the selection strip shows the live width × height of the selected
   frame; edit them (with optional aspect-ratio lock) and hit **Apply**. The logo
   scales with the frame.

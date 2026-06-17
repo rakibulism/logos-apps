@@ -73,16 +73,26 @@ function placeLogoInto(frame, svgString, name) {
   frame.name = name;
   frame.setPluginData("logoName", name);
 }
-// Build a fresh square container frame holding the logo.
-function buildLogoFrame(svgString, name, size) {
-  const S = Math.max(8, Math.round(size || DEFAULT_SIZE));
+// Build a fresh container frame (square, or any W×H for "auto") holding the logo.
+function buildLogoFrame(svgString, name, w, h) {
+  const W = Math.max(8, Math.round(w || DEFAULT_SIZE));
+  const H = Math.max(8, Math.round(h || W));
   const frame = figma.createFrame();
-  frame.resize(S, S);
+  frame.resize(W, H);
   frame.fills = [];               // transparent container
   frame.clipsContent = false;
   frame.setPluginData("brandsLogo", "1");
   placeLogoInto(frame, svgString, name);
   return frame;
+}
+// Resolve the requested size into { w, h }. "auto" → the given node's size.
+function resolveSize(reqSize, node) {
+  if (reqSize === "auto") {
+    if (node) return { w: node.width, h: node.height, auto: true };
+    return { w: DEFAULT_SIZE, h: DEFAULT_SIZE, auto: true };
+  }
+  const s = reqSize > 0 ? reqSize : DEFAULT_SIZE;
+  return { w: s, h: s, auto: false };
 }
 
 // ---------- message handler ----------
@@ -113,8 +123,13 @@ figma.ui.onmessage = async (msg) => {
         break;
 
       case "insert": {
-        const size = msg.size && msg.size > 0 ? msg.size : DEFAULT_SIZE;
-        const frame = buildLogoFrame(msg.svg, msg.name, size);
+        // "auto" → match the currently selected node's size (if any).
+        const selNode = figma.currentPage.selection[0];
+        const sz = resolveSize(msg.size, selNode);
+        if (msg.size === "auto" && !selNode) {
+          figma.notify("Auto size: nothing selected — used " + DEFAULT_SIZE + " px");
+        }
+        const frame = buildLogoFrame(msg.svg, msg.name, sz.w, sz.h);
         placeAtViewportCenter(frame);
         figma.currentPage.selection = [frame];
         figma.viewport.scrollAndZoomIntoView([frame]);
@@ -130,9 +145,13 @@ figma.ui.onmessage = async (msg) => {
           break;
         }
         const target = sel[0];
+        const sz = resolveSize(msg.size, target); // "auto" → the target's own size
 
-        // Our own square logo frame → just swap the inner SVG, keep the container.
+        // Our own logo frame → resize to the requested size, then swap the inner SVG.
         if (isLogoFrame(target)) {
+          if (Math.round(target.width) !== Math.round(sz.w) || Math.round(target.height) !== Math.round(sz.h)) {
+            target.resize(Math.max(8, Math.round(sz.w)), Math.max(8, Math.round(sz.h)));
+          }
           placeLogoInto(target, msg.svg, msg.name);
           figma.currentPage.selection = [target];
           figma.notify("Replaced with " + msg.name);
@@ -140,17 +159,23 @@ figma.ui.onmessage = async (msg) => {
           break;
         }
 
-        // Any other node → drop in a square logo frame centered on its slot.
+        // Any other node (frame, rectangle, image, …) → drop a logo frame on its slot.
         const parent = target.parent;
         if (!parent || typeof parent.insertChild !== "function") {
           figma.notify("Can't replace this layer here", { error: true });
           break;
         }
         const index = parent.children.indexOf(target);
-        const S = Math.max(target.width, target.height);
-        const frame = buildLogoFrame(msg.svg, msg.name, S);
-        frame.x = Math.round(target.x + (target.width - S) / 2);
-        frame.y = Math.round(target.y + (target.height - S) / 2);
+        const frame = buildLogoFrame(msg.svg, msg.name, sz.w, sz.h);
+        if (sz.auto) {
+          // match the target exactly — same position and bounds
+          frame.x = target.x;
+          frame.y = target.y;
+        } else {
+          // fixed square — center it on the target's slot
+          frame.x = Math.round(target.x + (target.width - sz.w) / 2);
+          frame.y = Math.round(target.y + (target.height - sz.h) / 2);
+        }
         parent.insertChild(index, frame);
         target.remove();
         figma.currentPage.selection = [frame];

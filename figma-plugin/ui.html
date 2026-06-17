@@ -49,6 +49,9 @@
   .seg button.active { background: var(--accent); color: var(--accent-fg); }
   select { height: 30px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 0 6px; outline: none; flex: 1; min-width: 0; }
   #sizeSelect { flex: none; width: auto; }
+  #customSize { flex: none; width: 58px; height: 30px; text-align: center; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); color: var(--text); outline: none; display: none; }
+  #customSize.show { display: inline-block; }
+  #customSize:focus { border-color: var(--accent); }
   .count { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
   /* ---------- selection strip ---------- */
@@ -127,7 +130,8 @@
         <button id="modeInsert" class="active" data-mode="insert">Insert</button>
         <button id="modeReplace" data-mode="replace">Replace</button>
       </div>
-      <select id="sizeSelect" title="Square frame size for inserted logos" aria-label="Logo size">
+      <select id="sizeSelect" title="Size for inserted logos (Auto = match the selected layer)" aria-label="Logo size">
+        <option value="auto">Auto size</option>
         <option value="24">24 px</option>
         <option value="32">32 px</option>
         <option value="48">48 px</option>
@@ -139,7 +143,9 @@
         <option value="256">256 px</option>
         <option value="384">384 px</option>
         <option value="512">512 px</option>
+        <option value="custom">Custom…</option>
       </select>
+      <input id="customSize" type="number" min="8" max="4000" placeholder="px" aria-label="Custom size" />
       <select id="catSelect"><option value="all">All categories</option></select>
     </div>
   </div>
@@ -243,14 +249,19 @@
     syncSizeUI();
   }
   function syncSizeUI() {
-    var sz = state.settings.size || 128;
     var sel = $("sizeSelect");
     if (!sel) return;
-    // make sure a restored custom size is selectable
-    if (![].some.call(sel.options, function (o) { return parseInt(o.value, 10) === sz; })) {
+    var sz = state.settings.size;
+    if (sz === "auto") { sel.value = "auto"; return; }
+    sz = parseInt(sz, 10) || 128;
+    // make sure a custom numeric size is a selectable option (inserted before "Custom…")
+    var present = [].some.call(sel.options, function (o) {
+      return o.value !== "auto" && o.value !== "custom" && parseInt(o.value, 10) === sz;
+    });
+    if (!present) {
       var o = document.createElement("option");
       o.value = sz; o.textContent = sz + " px";
-      sel.appendChild(o);
+      sel.insertBefore(o, sel.querySelector('option[value="custom"]'));
     }
     sel.value = String(sz);
   }
@@ -428,8 +439,33 @@
     state.settings.density = b.getAttribute("data-density"); applyAppearance(); persist();
   });
   $("sizeSelect").addEventListener("change", function () {
-    state.settings.size = parseInt(this.value, 10) || 128; persist();
+    var v = this.value;
+    var custom = $("customSize");
+    if (v === "custom") {
+      custom.value = (typeof state.settings.size === "number") ? state.settings.size : "";
+      custom.classList.add("show");
+      custom.focus(); custom.select();
+      return; // wait for the user to type a value
+    }
+    custom.classList.remove("show");
+    state.settings.size = (v === "auto") ? "auto" : (parseInt(v, 10) || 128);
+    persist();
   });
+  function applyCustomSize() {
+    var custom = $("customSize");
+    var v = parseInt(custom.value, 10);
+    if (v >= 8) {
+      state.settings.size = Math.min(4000, v);
+      persist();
+    }
+    custom.classList.remove("show");
+    syncSizeUI();
+  }
+  $("customSize").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { applyCustomSize(); }
+    else if (e.key === "Escape") { this.classList.remove("show"); syncSizeUI(); }
+  });
+  $("customSize").addEventListener("blur", applyCustomSize);
 
   // site link (kept in sync with the deployed site)
   var SITE = "https://rakibulism.github.io/brands-logo/";
