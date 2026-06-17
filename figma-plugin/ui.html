@@ -467,6 +467,23 @@
   });
   $("customSize").addEventListener("blur", applyCustomSize);
 
+  // Shift + Up/Down nudges a number input by 4.
+  function attachNudge(input) {
+    if (!input) return;
+    input.addEventListener("keydown", function (e) {
+      if (!e.shiftKey || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+      e.preventDefault();
+      var v = (parseFloat(input.value) || 0) + (e.key === "ArrowUp" ? 4 : -4);
+      var min = parseFloat(input.getAttribute("min"));
+      if (!isNaN(min)) v = Math.max(min, v);
+      input.value = v;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+  attachNudge($("customSize"));
+  attachNudge($("selW"));
+  attachNudge($("selH"));
+
   // site link (kept in sync with the deployed site)
   var SITE = "https://rakibulism.github.io/brands-logo/";
   $("siteLink").href = SITE;

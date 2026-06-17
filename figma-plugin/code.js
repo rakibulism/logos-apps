@@ -72,6 +72,8 @@ function placeLogoInto(frame, svgString, name) {
   frame.appendChild(logo);
   centerIn(logo, frame);
   logo.constraints = { horizontal: "SCALE", vertical: "SCALE" };
+  if ("clipsContent" in logo) logo.clipsContent = true;                    // clip content
+  if ("constrainProportions" in logo) logo.constrainProportions = true;   // lock aspect ratio
   frame.name = name;
   frame.setPluginData("logoName", name);
 }
@@ -82,7 +84,8 @@ function buildLogoFrame(svgString, name, w, h) {
   const frame = figma.createFrame();
   frame.resize(W, H);
   frame.fills = [];               // transparent container
-  frame.clipsContent = false;
+  frame.clipsContent = true;      // clip content
+  if ("constrainProportions" in frame) frame.constrainProportions = true; // lock aspect ratio
   frame.setPluginData("brandsLogo", "1");
   placeLogoInto(frame, svgString, name);
   return frame;
