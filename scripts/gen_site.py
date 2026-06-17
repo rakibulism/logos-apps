@@ -33,6 +33,30 @@ cats_js = [
 ]
 wm = sum(1 for n in gen.files if n.endswith("-wordmark"))
 
+# ---- assets/logos.json manifest (consumed by the Figma plugin + website bell) ----
+RAW_BASE = f"https://raw.githubusercontent.com/{gen.REPO}/master/logos/"
+manifest = {
+    "version": 1,
+    "repo": gen.REPO,
+    "branch": "master",
+    "rawBase": RAW_BASE,
+    "count": gen.total,
+    "iconCount": gen.total - wm,
+    "wordmarkCount": wm,
+    "categories": [
+        {"key": c["key"], "name": c["name"], "icon": c["icon"], "count": len(c["items"])}
+        for c in cats_js
+    ],
+    "logos": [
+        {"n": n, "c": c["key"], "w": n.endswith("-wordmark")}
+        for c in cats_js for n in c["items"]
+    ],
+}
+os.makedirs(os.path.join(gen.SRC, "assets"), exist_ok=True)
+with open(os.path.join(gen.SRC, "assets", "logos.json"), "w") as f:
+    json.dump(manifest, f, separators=(",", ":"))
+print(f"assets/logos.json written: {len(manifest['logos'])} logos")
+
 tpl_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "site_template.html")
 out = (open(tpl_path).read()
        .replace("__CATS__", json.dumps(cats_js))

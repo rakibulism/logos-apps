@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style>
+  :root {
+    --bg: #ffffff; --panel: #f7f7f8; --card: #ffffff; --border: #e6e6e8;
+    --text: #1a1a1a; --muted: #8a8a8f; --accent: #0d99ff; --accent-fg: #ffffff;
+    --hover: #f0f0f1; --danger: #e5484d; --radius: 8px;
+    --cell: 72px; --gap: 8px;
+  }
+  :root[data-mode="dark"] {
+    --bg: #1e1e1e; --panel: #2a2a2a; --card: #2c2c2c; --border: #3a3a3a;
+    --text: #ededed; --muted: #9a9a9a; --accent: #0d99ff; --accent-fg: #ffffff;
+    --hover: #353535; --danger: #f6685e;
+  }
+  :root[data-density="compact"] { --cell: 56px; --gap: 6px; }
+  :root[data-density="large"]   { --cell: 100px; --gap: 12px; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ---------- toolbar ---------- */
+  .toolbar { padding: 10px 10px 6px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .row { display: flex; gap: 6px; align-items: center; }
+  .search { flex: 1; position: relative; }
+  .search input {
+    width: 100%; height: 32px; padding: 0 28px 0 30px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--panel); color: var(--text); outline: none;
+  }
+  .search input:focus { border-color: var(--accent); }
+  .search .ic-search { position: absolute; left: 9px; top: 8px; color: var(--muted); pointer-events: none; }
+  .search .clear { position: absolute; right: 6px; top: 6px; width: 20px; height: 20px; border-radius: 5px; color: var(--muted); display: none; align-items: center; justify-content: center; }
+  .search .clear:hover { background: var(--hover); }
+  .search.has-val .clear { display: flex; }
+
+  .iconbtn { width: 32px; height: 32px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); display: flex; align-items: center; justify-content: center; color: var(--text); flex: none; }
+  .iconbtn:hover { background: var(--hover); }
+
+  .row2 { margin-top: 6px; gap: 6px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+  .seg button { padding: 0 12px; height: 28px; color: var(--muted); }
+  .seg button.active { background: var(--accent); color: var(--accent-fg); }
+  select { height: 30px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--panel); color: var(--text); padding: 0 6px; outline: none; flex: 1; min-width: 0; }
+  .count { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+  /* ---------- selection strip ---------- */
+  .selstrip { display: none; padding: 8px 10px; border-bottom: 1px solid var(--border); background: var(--panel); }
+  .selstrip.on { display: block; }
+  .selstrip .name { display: flex; align-items: center; gap: 6px; font-weight: 600; margin-bottom: 6px; }
+  .selstrip .name .badge { font-size: 10px; font-weight: 500; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+  .sizes { display: flex; align-items: center; gap: 6px; }
+  .sizes label { color: var(--muted); }
+  .sizes input { width: 56px; height: 28px; text-align: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
+  .sizes input:focus { border-color: var(--accent); }
+  .lock { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); }
+  .lock.on { color: var(--accent); border-color: var(--accent); }
+  .btn { height: 28px; padding: 0 12px; border-radius: 6px; background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+  .btn.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+  .btn:hover { filter: brightness(1.05); }
+  .replace-hint { display: none; margin-top: 6px; font-size: 11px; color: var(--accent); }
+  body[data-mode-action="replace"] .replace-hint { display: block; }
+
+  /* ---------- grid ---------- */
+  .scroll { flex: 1; overflow-y: auto; padding: 10px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cell), 1fr)); gap: var(--gap); }
+  .cell {
+    aspect-ratio: 1 / 1; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--card); display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 6px; overflow: hidden; transition: border-color .12s, transform .06s;
+  }
+  .cell:hover { border-color: var(--accent); }
+  .cell:active { transform: scale(.96); }
+  .cell img { width: 60%; height: 60%; object-fit: contain; pointer-events: none; }
+  .cell .cn { font-size: 9px; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty, .loading { text-align: center; color: var(--muted); padding: 40px 16px; }
+  .empty button, .errbox button { margin-top: 10px; }
+  .errbox { text-align: center; color: var(--muted); padding: 40px 16px; }
+  .sentinel { height: 1px; }
+
+  /* ---------- overlays ---------- */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: flex-start; justify-content: stretch; z-index: 10; }
+  .overlay.on { display: flex; }
+  .sheet { margin-top: 0; width: 100%; background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 14px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+  .sheet h3 { margin: 0 0 10px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; }
+  .sheet h3 .x { width: 24px; height: 24px; border-radius: 6px; color: var(--muted); display: flex; align-items: center; justify-content: center; }
+  .sheet h3 .x:hover { background: var(--hover); }
+  .field { margin-bottom: 14px; }
+  .field > .lbl { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+  .choices { display: flex; gap: 6px; }
+  .choices button { flex: 1; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--text); }
+  .choices button.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .linklist a { display: flex; align-items: center; gap: 8px; padding: 9px 8px; border-radius: 6px; color: var(--text); text-decoration: none; }
+  .linklist a:hover { background: var(--hover); }
+  .linklist a .sub { color: var(--muted); font-size: 11px; margin-left: auto; }
+  .menu-foot { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body data-mode-action="insert">
+  <!-- toolbar -->
+  <div class="toolbar">
+    <div class="row">
+      <div class="search" id="searchWrap">
+        <svg class="ic-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="search" type="text" placeholder="Search 15,000+ logos…" autocomplete="off" />
+        <button class="clear" id="clearSearch" aria-label="Clear">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <button class="iconbtn" id="openSettings" title="Settings">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="iconbtn" id="openMenu" title="Menu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+    <div class="row row2">
+      <div class="seg">
+        <button id="modeInsert" class="active" data-mode="insert">Insert</button>
+        <button id="modeReplace" data-mode="replace">Replace</button>
+      </div>
+      <select id="catSelect"><option value="all">All categories</option></select>
+    </div>
+  </div>
+
+  <!-- selection strip -->
+  <div class="selstrip" id="selstrip">
+    <div class="name"><span id="selName">—</span><span class="badge" id="selType"></span></div>
+    <div class="sizes">
+      <label>W</label><input id="selW" type="number" min="1" />
+      <label>H</label><input id="selH" type="number" min="1" />
+      <button class="lock on" id="lockBtn" title="Lock aspect ratio">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </button>
+      <button class="btn ghost" id="applySize">Apply</button>
+    </div>
+    <div class="replace-hint">Replace mode — click a logo to swap the selected layer.</div>
+  </div>
+
+  <!-- grid -->
+  <div class="scroll" id="scroll">
+    <div class="loading" id="state">Loading logos…</div>
+    <div class="grid" id="grid"></div>
+    <div class="sentinel" id="sentinel"></div>
+  </div>
+
+  <!-- settings overlay -->
+  <div class="overlay" id="settingsOverlay">
+    <div class="sheet">
+      <h3>Settings <button class="x" data-close>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></h3>
+      <div class="field">
+        <div class="lbl">Appearance</div>
+        <div class="choices" id="themeChoices">
+          <button data-theme="light">Light</button>
+          <button data-theme="dark">Dark</button>
+          <button data-theme="system">Device default</button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="lbl">Density</div>
+        <div class="choices" id="densityChoices">
+          <button data-density="compact">Compact</button>
+          <button data-density="default">Default</button>
+          <button data-density="large">Large</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- menu overlay -->
+  <div class="overlay" id="menuOverlay">
+    <div class="sheet">
+      <h3>About <button class="x" data-close>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></h3>
+      <div class="linklist">
+        <a id="siteLink" href="#" target="_blank" rel="noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+          <span id="siteName">Brands Logo</span><span class="sub" id="siteUrlText"></span>
+        </a>
+        <a href="https://x.com/rakibulism" target="_blank" rel="noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25h6.83l4.713 6.231 5.447-6.231Zm-1.16 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
+          <span>Creator — @rakibulism</span><span class="sub">X / Twitter</span>
+        </a>
+      </div>
+      <div class="menu-foot" id="metaFoot"></div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+  var MANIFEST_URL = "https://raw.githubusercontent.com/rakibulism/brands-logo/master/assets/logos.json";
+  var PAGE = 150;
+
+  var state = {
+    all: [], rawBase: "", filtered: [], shown: 0,
+    q: "", cat: "all", mode: "insert",
+    settings: { theme: "system", density: "default" },
+    ratio: 1, lock: true, hasSel: false,
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var root = document.documentElement;
+  var grid = $("grid"), stateEl = $("state"), scroll = $("scroll");
+
+  /* ---------- theme / density ---------- */
+  function resolveMode() {
+    var t = state.settings.theme;
+    if (t === "light" || t === "dark") return t;
+    return root.classList.contains("figma-dark") ? "dark" : "light"; // device default
+  }
+  function applyAppearance() {
+    root.setAttribute("data-mode", resolveMode());
+    root.setAttribute("data-density", state.settings.density);
+    markChoices("themeChoices", "theme", state.settings.theme);
+    markChoices("densityChoices", "density", state.settings.density);
+  }
+  function markChoices(containerId, attr, val) {
+    var btns = $(containerId).querySelectorAll("button");
+    btns.forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-" + attr) === val); });
+  }
+  // follow Figma's theme toggle when on "device default"
+  new MutationObserver(function () {
+    if (state.settings.theme === "system") root.setAttribute("data-mode", resolveMode());
+  }).observe(root, { attributes: true, attributeFilter: ["class"] });
+
+  function persist() { parent.postMessage({ pluginMessage: { type: "save-settings", settings: state.settings } }, "*"); }
+
+  /* ---------- data ---------- */
+  function loadManifest() {
+    stateEl.style.display = "block";
+    stateEl.className = "loading"; stateEl.textContent = "Loading logos…";
+    fetch(MANIFEST_URL, { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (m) {
+        state.all = m.logos || [];
+        state.rawBase = m.rawBase;
+        buildCategories(m.categories || []);
+        $("metaFoot").textContent = (m.count ? m.count.toLocaleString() : state.all.length) + " logos · synced from " + m.repo;
+        applyFilter();
+      })
+      .catch(function (e) {
+        stateEl.className = "errbox";
+        stateEl.innerHTML = "Couldn't load logos (" + e.message + ").<br/><button class='btn' id='retry'>Retry</button>";
+        var r = $("retry"); if (r) r.onclick = loadManifest;
+      });
+  }
+  function buildCategories(cats) {
+    var sel = $("catSelect");
+    cats.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.key; o.textContent = c.name + " (" + c.count + ")";
+      sel.appendChild(o);
+    });
+  }
+
+  function applyFilter() {
+    var q = state.q.trim().toLowerCase().replace(/\s+/g, "");
+    state.filtered = state.all.filter(function (l) {
+      if (state.cat !== "all" && l.c !== state.cat) return false;
+      if (q && l.n.replace(/-/g, "").indexOf(q) === -1) return false;
+      return true;
+    });
+    state.shown = 0;
+    grid.innerHTML = "";
+    if (!state.filtered.length) {
+      stateEl.style.display = "block"; stateEl.className = "empty";
+      stateEl.textContent = state.all.length ? "No logo matches your search." : "";
+    } else {
+      stateEl.style.display = "none";
+    }
+    renderMore();
+  }
+
+  function renderMore() {
+    var end = Math.min(state.shown + PAGE, state.filtered.length);
+    var frag = document.createDocumentFragment();
+    for (var i = state.shown; i < end; i++) {
+      var l = state.filtered[i];
+      var cell = document.createElement("button");
+      cell.className = "cell"; cell.title = l.n;
+      cell.setAttribute("data-n", l.n);
+      var img = document.createElement("img");
+      img.loading = "lazy"; img.src = state.rawBase + l.n + ".svg"; img.alt = l.n;
+      var cn = document.createElement("span");
+      cn.className = "cn"; cn.textContent = l.n;
+      cell.appendChild(img); cell.appendChild(cn);
+      frag.appendChild(cell);
+    }
+    grid.appendChild(frag);
+    state.shown = end;
+  }
+
+  // infinite scroll
+  new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting && state.shown < state.filtered.length) renderMore();
+  }, { root: scroll, rootMargin: "300px" }).observe($("sentinel"));
+
+  /* ---------- insert / replace ---------- */
+  grid.addEventListener("click", function (e) {
+    var cell = e.target.closest(".cell");
+    if (!cell) return;
+    var name = cell.getAttribute("data-n");
+    if (state.mode === "replace" && !state.hasSel) {
+      toast("Select a layer in Figma first"); return;
+    }
+    cell.style.opacity = ".4";
+    fetch(state.rawBase + name + ".svg", { cache: "force-cache" })
+      .then(function (r) { return r.text(); })
+      .then(function (svg) {
+        parent.postMessage({ pluginMessage: { type: state.mode, name: name, svg: svg } }, "*");
+      })
+      .catch(function () { toast("Couldn't fetch " + name); })
+      .then(function () { cell.style.opacity = ""; });
+  });
+
+  function toast(t) {
+    var d = document.createElement("div");
+    d.textContent = t;
+    d.style.cssText = "position:fixed;left:50%;bottom:14px;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:6px 12px;border-radius:6px;font-size:11px;z-index:50;opacity:.96";
+    document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 1600);
+  }
+
+  /* ---------- selection strip ---------- */
+  function showSelection(info) {
+    state.hasSel = !!info.hasSelection;
+    var strip = $("selstrip");
+    if (!info.hasSelection) { strip.classList.remove("on"); return; }
+    strip.classList.add("on");
+    $("selName").textContent = info.name || "Layer";
+    $("selType").textContent = (info.type || "").toLowerCase();
+    $("selW").value = info.width;
+    $("selH").value = info.height;
+    state.ratio = info.height ? info.width / info.height : 1;
+  }
+  $("selW").addEventListener("input", function () {
+    if (state.lock && state.ratio) $("selH").value = round(parseFloat(this.value) / state.ratio);
+  });
+  $("selH").addEventListener("input", function () {
+    if (state.lock && state.ratio) $("selW").value = round(parseFloat(this.value) * state.ratio);
+  });
+  function round(n) { return Math.round((n || 0) * 100) / 100; }
+  $("lockBtn").addEventListener("click", function () {
+    state.lock = !state.lock; this.classList.toggle("on", state.lock);
+  });
+  $("applySize").addEventListener("click", function () {
+    var w = parseFloat($("selW").value), h = parseFloat($("selH").value);
+    if (!(w > 0) || !(h > 0)) { toast("Enter a valid size"); return; }
+    parent.postMessage({ pluginMessage: { type: "resize", width: w, height: h } }, "*");
+  });
+
+  /* ---------- search / category / mode ---------- */
+  var deb;
+  $("search").addEventListener("input", function () {
+    var v = this.value;
+    $("searchWrap").classList.toggle("has-val", !!v);
+    clearTimeout(deb);
+    deb = setTimeout(function () { state.q = v; applyFilter(); }, 160);
+  });
+  $("clearSearch").addEventListener("click", function () {
+    var s = $("search"); s.value = ""; $("searchWrap").classList.remove("has-val");
+    state.q = ""; applyFilter(); s.focus();
+  });
+  $("catSelect").addEventListener("change", function () { state.cat = this.value; applyFilter(); });
+  function setMode(m) {
+    state.mode = m;
+    document.body.setAttribute("data-mode-action", m);
+    $("modeInsert").classList.toggle("active", m === "insert");
+    $("modeReplace").classList.toggle("active", m === "replace");
+  }
+  $("modeInsert").addEventListener("click", function () { setMode("insert"); });
+  $("modeReplace").addEventListener("click", function () { setMode("replace"); });
+
+  /* ---------- overlays ---------- */
+  function openOverlay(id) { $(id).classList.add("on"); }
+  function closeOverlays() { $("settingsOverlay").classList.remove("on"); $("menuOverlay").classList.remove("on"); }
+  $("openSettings").addEventListener("click", function () { openOverlay("settingsOverlay"); });
+  $("openMenu").addEventListener("click", function () { openOverlay("menuOverlay"); });
+  document.querySelectorAll(".overlay").forEach(function (o) {
+    o.addEventListener("click", function (e) { if (e.target === o) closeOverlays(); });
+  });
+  document.querySelectorAll("[data-close]").forEach(function (b) { b.addEventListener("click", closeOverlays); });
+  $("themeChoices").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    state.settings.theme = b.getAttribute("data-theme"); applyAppearance(); persist();
+  });
+  $("densityChoices").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    state.settings.density = b.getAttribute("data-density"); applyAppearance(); persist();
+  });
+
+  // site link (kept in sync with the deployed site)
+  var SITE = "https://rakibulism.github.io/brands-logo/";
+  $("siteLink").href = SITE;
+  $("siteUrlText").textContent = SITE.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  /* ---------- messages from main thread ---------- */
+  window.onmessage = function (event) {
+    var msg = event.data.pluginMessage;
+    if (!msg) return;
+    if (msg.type === "settings") {
+      state.settings = Object.assign(state.settings, msg.settings || {});
+      applyAppearance();
+    } else if (msg.type === "selection") {
+      showSelection(msg);
+    }
+  };
+
+  applyAppearance();
+  loadManifest();
+  parent.postMessage({ pluginMessage: { type: "ready" } }, "*");
+})();
+</script>
+</body>
+</html>

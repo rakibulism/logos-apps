@@ -1,0 +1,12 @@
+{
+  "name": "Brands Logo",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": ["https://raw.githubusercontent.com"],
+    "reasoning": "Fetches the logo manifest (assets/logos.json) and individual SVG logos from the brands-logo GitHub repository so the library always matches the repo."
+  }
+}

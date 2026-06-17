@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "date": "2026-06-18",
+      "tag": "new",
+      "title": "Figma plugin launched",
+      "body": "Search, insert, replace-in-place and resize 15,000+ logos without leaving Figma. The plugin syncs live from this repo, so new logos show up automatically."
+    },
+    {
+      "date": "2026-06-18",
+      "tag": "new",
+      "title": "Docs & Updates pages",
+      "body": "A new Docs page explains the website, the API manifest and the Figma plugin. This Updates page (and the bell) now tracks what's new."
+    },
+    {
+      "date": "2026-06-18",
+      "tag": "new",
+      "title": "Public logo manifest",
+      "body": "assets/logos.json now lists every logo with its category — a tiny JSON API you can build on. It's regenerated on every build."
+    },
+    {
+      "date": "2026-06-17",
+      "tag": "improved",
+      "title": "Football crests refreshed",
+      "body": "Replaced outdated club crests with current official versions and added more clubs and competitions."
+    },
+    {
+      "date": "2026-06-17",
+      "tag": "improved",
+      "title": "Library cleanup",
+      "body": "Pruned bloated and incorrect files and re-sourced clean, optimized SVGs across the collection."
+    }
+  ]
+}
