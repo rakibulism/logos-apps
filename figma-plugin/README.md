@@ -7,11 +7,17 @@ new ones are added.
 
 ## Features
 
-- **Search & insert** — type a brand, click to drop the SVG onto the canvas.
-- **Replace in place** — switch to *Replace* mode, select a layer, click a logo to
-  swap it while keeping the original position and bounds.
+- **Search & insert** — type a brand, click to drop it onto the canvas. Each logo
+  lands inside a **fixed square frame** with the SVG scaled to fit (its own aspect
+  ratio preserved, centered). The square size is set in Settings → *Logo size*.
+- **Replace in place** — switch to *Replace* mode, select a logo frame, click a new
+  logo to swap it. Because the container is a fixed square, a 200×100 logo and a
+  100×200 logo both fit the same box — **the frame size never changes and nothing
+  distorts**. (Select a non-logo layer and it's replaced with a square logo frame
+  centered on its slot.)
 - **Resize** — the selection strip shows the live width × height of the selected
-  layer; edit them (with optional aspect-ratio lock) and hit **Apply**.
+  frame; edit them (with optional aspect-ratio lock) and hit **Apply**. The logo
+  scales with the frame.
 - **Auto-size readout** — selecting any layer or frame instantly reflects its size.
 - **Appearance** — Light / Dark / Device default (follows Figma's theme), under the
   ⚙ settings icon.
