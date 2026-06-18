@@ -1,0 +1,229 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}
+</style></head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+const W=1920,H=1080, cv=document.getElementById('c'), x=cv.getContext('2d');
+const A=4.0; // intro-ish boundaries used below
+
+/* ---------- palette ---------- */
+const ACC='#4d9fff', GRN='#34c778', VIO='#8b6cff', TXT='#f4f4f7', MUT='#9a9da6', FNT='#6c6f78';
+const PANEL='#181a20', CARD='#23252c', CARD2='#2b2e36', SUB='#2a2d35', BORD='rgba(255,255,255,.09)';
+
+/* ---------- assets ---------- */
+const NAMES=['figma','react','vue','tailwindcss','github','notion','slack','openai','vercel','stripe','spotify','discord','supabase','linear'];
+const IMG={};
+function load(){return Promise.all(NAMES.map(n=>new Promise(r=>{const i=new Image();i.onload=()=>r();i.onerror=()=>r();i.src='/logos/'+n+'.svg';IMG[n]=i;})));}
+
+/* ---------- math/easing ---------- */
+const cl=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const mix=(a,b,k)=>a+(b-a)*k;
+const p=(t,a,b)=>cl((t-a)/(b-a));
+const eio=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;       // easeInOutCubic
+const eo=t=>1-Math.pow(1-t,3);                            // easeOutCubic
+const ei=t=>t*t*t;
+const eob=t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2);}; // back
+
+/* ---------- primitives ---------- */
+function rr(X,Y,w,h,r){r=Math.min(r,w/2,h/2);x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+function fr(X,Y,w,h,r,c){rr(X,Y,w,h,r);x.fillStyle=c;x.fill();}
+function sr(X,Y,w,h,r,c,lw=1){rr(X,Y,w,h,r);x.strokeStyle=c;x.lineWidth=lw;x.stroke();}
+function txt(s,X,Y,f,c,al='left',w='400'){x.font=w+' '+f+'px -apple-system,"Segoe UI",Roboto,Inter,sans-serif';x.fillStyle=c;x.textAlign=al;x.textBaseline='alphabetic';x.fillText(s,X,Y);}
+function logo(n,X,Y,s,a=1){const im=IMG[n];if(!im||!im.width)return;x.globalAlpha=a;const r=Math.min(s/im.width,s/im.height),w=im.width*r,h=im.height*r;x.drawImage(im,X-w/2,Y-h/2,w,h);x.globalAlpha=1;}
+function mark(X,Y,s,c=TXT){const u=s*0.42,g=s*0.16,lw=Math.max(2,s*0.07);x.strokeStyle=c;x.lineWidth=lw;x.fillStyle=c;
+  [[0,0,0],[1,0,0],[0,1,0],[1,1,1]].forEach(([cx,cy,f])=>{const bx=X+cx*(u+g),by=Y+cy*(u+g);rr(bx,by,u,u,u*0.24);if(f){x.fill();}else{x.stroke();}});}
+function cursor(X,Y,press){x.save();x.translate(X,Y);const s=press?0.9:1;x.scale(s,s);
+  x.beginPath();x.moveTo(0,0);x.lineTo(0,26);x.lineTo(7,19.5);x.lineTo(12,30);x.lineTo(16,28);x.lineTo(11,18);x.lineTo(20,18);x.closePath();
+  x.fillStyle='#fff';x.fill();x.strokeStyle='rgba(0,0,0,.55)';x.lineWidth=1.6;x.stroke();x.restore();}
+
+/* ---------- static background (pre-rendered) ---------- */
+let BG=null;
+function buildBG(){const o=document.createElement('canvas');o.width=W;o.height=H;const g=o.getContext('2d');
+  const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'#101319');gr.addColorStop(1,'#0a0a0c');g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const rg=g.createRadialGradient(1380,300,40,1380,300,760);rg.addColorStop(0,'rgba(77,159,255,.13)');rg.addColorStop(1,'rgba(77,159,255,0)');g.fillStyle=rg;g.fillRect(0,0,W,H);
+  g.fillStyle='rgba(255,255,255,.05)';for(let X=0;X<W;X+=26)for(let Y=0;Y<H;Y+=26){g.beginPath();g.arc(X,Y,0.9,0,7);g.fill();}
+  g.strokeStyle='rgba(255,255,255,.07)';g.lineWidth=1;[70,H-70].forEach(Y=>{g.beginPath();g.moveTo(0,Y);g.lineTo(W,Y);g.stroke();});[70,W-70].forEach(X=>{g.beginPath();g.moveTo(X,0);g.lineTo(X,H);g.stroke();});
+  g.strokeStyle='rgba(255,255,255,.32)';g.lineWidth=2;[70,W-70].forEach(X=>[70,H-70].forEach(Y=>{g.beginPath();g.moveTo(X-8,Y);g.lineTo(X+8,Y);g.moveTo(X,Y-8);g.lineTo(X,Y+8);g.stroke();}));
+  BG=o;}
+
+/* ---------- panel geometry ---------- */
+const PX=120,PY=150,PW=520,PH=780,PAD=28;
+const GY=PY+PAD+250, CELL=(PW-2*PAD-2*16)/3, GAP=16;
+const baseGrid=['figma','react','vue','tailwindcss','github','notion','slack','openai','vercel'];
+function cellPos(i){const col=i%3,row=(i/3|0);return [PX+PAD+col*(CELL+GAP)+CELL/2, GY+row*(CELL+GAP)+CELL/2];}
+
+function drawPanel(dx, st){
+  x.save();x.translate(dx,0);
+  fr(PX,PY,PW,PH,22,PANEL);sr(PX,PY,PW,PH,22,BORD,1);
+  // header
+  mark(PX+PAD,PY+PAD-2,26);txt('Brands Logo',PX+PAD+58,PY+PAD+20,21,TXT,'left','600');
+  // search
+  const sx=PX+PAD,sy=PY+PAD+44,sw=PW-2*PAD,sh=48;
+  fr(sx,sy,sw,sh,11,SUB);if(st.searchFocus)sr(sx,sy,sw,sh,11,ACC,1.5);
+  x.strokeStyle=MUT;x.lineWidth=2.5;x.beginPath();x.arc(sx+22,sy+sh/2-2,8,0,7);x.stroke();x.beginPath();x.moveTo(sx+28,sy+sh/2+4);x.lineTo(sx+34,sy+sh/2+10);x.stroke();
+  if(st.search){txt(st.search,sx+46,sy+sh/2+7,21,TXT);if(st.caret){const tw=x.measureText(st.search).width;x.fillStyle=ACC;x.fillRect(sx+48+tw,sy+12,2,sh-24);}}
+  else txt('Search 15,000+ logos…',sx+46,sy+sh/2+7,20,FNT);
+  // source tabs
+  const ty=PY+PAD+108,tw=(sw-10)/2;
+  fr(sx,ty,tw,40,9,st.tab==0?ACC:SUB);txt('Brands Logo',sx+tw/2,ty+26,19,st.tab==0?'#fff':MUT,'center','600');
+  fr(sx+tw+10,ty,tw,40,9,st.tab==1?ACC:SUB);txt('svgl',sx+tw+10+tw/2,ty+26,19,st.tab==1?'#fff':MUT,'center','600');
+  // mode seg + size
+  const my=PY+PAD+160;fr(sx,my,150,40,9,SUB);
+  const onR=st.mode==1; fr(sx+(onR?75:0),my,75,40,9,ACC);
+  txt('Insert',sx+38,my+26,17,st.mode==0?'#fff':MUT,'center','600');txt('Replace',sx+112,my+26,17,st.mode==1?'#fff':MUT,'center','600');
+  fr(sx+162,my,96,40,9,SUB);txt(st.size||'128 px',sx+162+48,my+26,17,MUT,'center');
+  fr(sx+268,my,sw-268,40,9,SUB);txt('All',sx+268+16,my+26,17,MUT,'left');
+  // grid
+  (st.cells||[]).forEach(c=>{const [bx,by]=cellPos(c.i);const cx=bx+(c.dx||0),cy=by+(c.dy||0),s=CELL*(c.s||1);
+    x.globalAlpha=c.a;fr(cx-s/2,cy-s/2,s,s,14,CARD);sr(cx-s/2,cy-s/2,s,s,14,BORD,1);x.globalAlpha=1;
+    logo(c.n,cx,cy,s*0.56,c.a);});
+  x.restore();
+}
+
+/* ---------- canvas / artboard area ---------- */
+const CAX=720,CAY=150,CAW=1080,CAH=780, FCX=1230,FCY=560; // frame center
+function drawArt(a, frame){
+  x.globalAlpha=a;
+  // dotted artboard
+  fr(CAX,CAY,CAW,CAH,18,'#15171c');sr(CAX,CAY,CAW,CAH,18,BORD,1);
+  x.fillStyle='rgba(255,255,255,.04)';for(let X=CAX+30;X<CAX+CAW-10;X+=34)for(let Y=CAY+30;Y<CAY+CAH-10;Y+=34){x.beginPath();x.arc(X,Y,1.1,0,7);x.fill();}
+  txt('Canvas',CAX+26,CAY+40,18,FNT,'left','600');
+  x.globalAlpha=1;
+  if(frame&&frame.s>1){const s=frame.s,fx=frame.x,fy=frame.y;
+    x.globalAlpha=frame.a;
+    fr(fx-s/2,fy-s/2,s,s,Math.min(16,s*0.12),'#1c1e24');
+    if(frame.sel){sr(fx-s/2-1,fy-s/2-1,s+2,s+2,Math.min(17,s*0.12),ACC,2.5);}
+    else sr(fx-s/2,fy-s/2,s,s,Math.min(16,s*0.12),BORD,1);
+    if(frame.a1>0)logo(frame.n1,fx,fy,s*0.62,frame.a1);
+    if(frame.n2&&frame.a2>0)logo(frame.n2,fx,fy,s*0.62,frame.a2);
+    x.globalAlpha=1;
+  }
+}
+
+/* ---------- toast / badge ---------- */
+function toast(s,X,Y,a,col=GRN){if(a<=0)return;x.globalAlpha=a;const w=x.measureText?0:0;x.font='600 22px -apple-system,sans-serif';const tw=x.measureText(s).width+58;
+  fr(X-tw/2,Y,tw,46,23,'#1d2730');x.beginPath();x.arc(X-tw/2+26,Y+23,7,0,7);x.fillStyle=col;x.fill();
+  txt(s,X-tw/2+44,Y+30,22,TXT,'left','600');x.globalAlpha=1;}
+
+/* ---------- main timeline ---------- */
+const DUR=15.6;
+function typed(str,prog){return str.slice(0,Math.round(str.length*cl(prog)));}
+
+function render(t){
+  x.clearRect(0,0,W,H); x.drawImage(BG,0,0);
+
+  // ---- intro (0–2.0) ----
+  const introOut=p(t,1.7,2.6);
+  if(t<2.7){const a=eo(p(t,0.15,1.0))*(1-eio(introOut));const yo=mix(20,0,eo(p(t,0.15,1.0)))-introOut*40;
+    x.globalAlpha=a;mark(W/2-44,250+yo,86,TXT);x.globalAlpha=1;
+    txt('Brands Logo',W/2+58,318+yo,52,TXT,'center','700');
+    x.globalAlpha=a;txt('15,000+ SVG brand logos & icons — inside Figma.',W/2,440+yo,38,MUT,'center');x.globalAlpha=1;
+  }
+
+  // ---- panel slide-in (2.0–3.4) ----
+  const panelIn=eo(p(t,2.0,3.4)); const pdx=mix(-720,0,panelIn);
+  const artIn=eo(p(t,2.4,3.6));
+  if(t<2.2&&panelIn<=0){return;} // nothing else yet
+
+  // build panel state by phase
+  let st={tab:0,mode:0,search:'',caret:false,searchFocus:false,size:'128 px',cells:[]};
+  // grid cells default
+  function baseCells(alpha){return baseGrid.map((n,i)=>({i,n,a:alpha,s:1}));}
+
+  // frame state on canvas
+  let frame=null, toastA=0,toastTxt='',toastY=0,badge=0;
+  let curX=420,curY=820,press=false;
+
+  // SEARCH (3.4–6.2): type stripe, filter
+  if(t>=3.3&&t<6.3){st.searchFocus=true;st.caret=(Math.floor(t*2)%2==0);
+    const typ=p(t,3.6,4.6);st.search=typed('stripe',typ);
+    const fade=eo(p(t,4.7,5.5));
+    st.cells=baseCells(1-fade);
+    if(fade>0){const gp=eob(p(t,4.9,5.8));st.cells.push({i:0,n:'stripe',a:fade,s:0.4+0.6*gp});}
+    // cursor to stripe cell near end
+    const [bx,by]=cellPos(0);
+    curX=mix(420,bx+pdx,eio(p(t,5.4,6.0)));curY=mix(360,by,eio(p(t,5.4,6.0)));
+    press=(t>6.0&&t<6.2);
+  }
+  // INSERT (6.2–8.8): logo flies to canvas, frame scales in
+  else if(t>=6.3&&t<8.9){
+    st.cells=[{i:0,n:'stripe',a:1,s:1}];st.search='stripe';
+    const fly=eio(p(t,6.35,7.2));const [bx,by]=cellPos(0);
+    const sx=bx+0, sy=by, fx=mix(sx,FCX,fly), fy=mix(sy,FCY,fly);
+    // frame grows
+    const grow=eob(p(t,6.9,7.9));
+    frame={x:FCX,y:FCY,s:mix(0,230,grow),a:1,n1:'stripe',a1:cl(p(t,7.0,7.5)),n2:null,a2:0,sel:false};
+    // flying logo
+    if(fly<1){const fs=mix(CELL*0.56,150,fly);logo('stripe',fx,fy,fs,1-cl(p(t,7.0,7.3)));}
+    toastTxt='Inserted';toastA=eo(p(t,7.5,7.9))*(1-p(t,8.4,8.8));toastY=CAY+40;
+    curX=mix(bx+pdx,1230,eio(p(t,7.2,8.0)));curY=mix(by,560,eio(p(t,7.2,8.0)));
+  }
+  // REPLACE (8.9–11.7)
+  else if(t>=8.9&&t<11.8){
+    st.mode=1;st.searchFocus=true;st.caret=(Math.floor(t*2)%2==0);
+    const typ=p(t,9.4,10.2);st.search=typed('spotify',typ);
+    const fade=eo(p(t,9.0,9.5)); // base out, spotify in
+    st.cells=[{i:0,n:'spotify',a:cl(p(t,9.3,9.9)),s:1}];
+    const swap=eio(p(t,10.6,11.4));
+    frame={x:FCX,y:FCY,s:230,a:1,n1:'stripe',a1:1-swap,n2:'spotify',a2:swap,sel:true};
+    badge=eo(p(t,10.7,11.2))*(1-p(t,11.4,11.8));
+    const [bx,by]=cellPos(0);
+    curX=mix(330,bx+pdx,eio(p(t,10.2,10.7)));curY=mix(300,by,eio(p(t,10.2,10.7)));
+    press=(t>10.55&&t<10.72);
+  }
+  // RESIZE (11.8–13.4)
+  else if(t>=11.8&&t<13.5){
+    st.mode=1;st.search='';st.cells=baseCells(1);st.size='200 px';
+    const gr=eio(p(t,12.0,13.0));
+    frame={x:FCX,y:FCY,s:mix(230,330,gr),a:1,n1:null,a1:0,n2:'spotify',a2:1,sel:true};
+  }
+  // hold/idle between (panel default)
+  else if(t>=3.4){st.cells=baseCells(1); if(t>=8.85&&t<8.95){frame={x:FCX,y:FCY,s:230,a:1,n1:'stripe',a1:1,n2:null,a2:0,sel:false};} }
+
+  // persistent frame after insert (so it stays visible across replace/resize already handled)
+  if(t>=7.9&&t<8.9&&!frame){frame={x:FCX,y:FCY,s:230,a:1,n1:'stripe',a1:1,n2:null,a2:0,sel:false};}
+
+  // ---- OUTRO (13.4–15.6) ----
+  const outro=eio(p(t,13.4,14.2));
+  if(t<13.6||outro<1){drawArt(artIn*(1-outro),frame);drawPanel(pdx,st);}
+  if(t>=3.4&&badge>0){const bx2=FCX,by2=FCY+155;x.globalAlpha=badge;fr(bx2-185,by2,370,46,23,'#16221b');x.beginPath();x.arc(bx2-185+26,by2+23,7,0,7);x.fillStyle=GRN;x.fill();txt('same frame · no distortion',bx2-185+44,by2+30,21,TXT,'left','600');x.globalAlpha=1;}
+  if(t>=3.4&&toastA>0){toast(toastTxt,1230,toastY,toastA);}
+  // cursor (hide during intro & outro)
+  if(t>2.6&&t<13.4){cursor(curX,curY,press);}
+
+  if(outro>0){const a=outro;x.globalAlpha=a*0.0;x.globalAlpha=1;
+    // dim
+    x.fillStyle='rgba(8,9,12,'+ (a*0.86)+')';x.fillRect(0,0,W,H);
+    const up=eo(p(t,13.7,14.6)),yo=mix(30,0,up);
+    x.globalAlpha=up;mark(W/2-40,300+yo,80,TXT);x.globalAlpha=1;
+    txt('15,000+ logos & icons,',W/2,470+yo,72,TXT,'center','700');
+    txt('a click away in Figma.',W/2,556+yo,72,TXT,'center','700');
+    x.globalAlpha=up;txt('search · insert · replace in place · resize',W/2,628+yo,32,MUT,'center');
+    // buttons
+    const bw=560,bx3=W/2-bw/2;fr(bx3,690+yo,260,64,32,ACC);txt('▶  Run plugin',bx3+130,690+yo+40,26,'#fff','center','600');
+    sr(bx3+290,690+yo,270,64,32,'rgba(255,255,255,.4)',2);txt('brandslogo.vercel.app',bx3+290+135,690+yo+40,25,TXT,'center','600');
+    x.globalAlpha=1;
+  }
+}
+
+/* ---------- record ---------- */
+async function record(){
+  const stream=cv.captureStream(30);
+  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:9000000});
+  const chunks=[];rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  const done=new Promise(res=>{rec.onstop=async()=>{
+    const blob=new Blob(chunks,{type:'video/webm'});
+    const dataUrl=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob);});
+    await fetch('/save?name=walkthrough&dir=figma-plugin/marketing&ext=webm',{method:'POST',body:dataUrl});
+    window.__videoDone=true;window.__videoBytes=blob.size;res();
+  };});
+  rec.start();
+  const t0=performance.now();
+  await new Promise(res=>{function fr(){const t=(performance.now()-t0)/1000;render(Math.min(t,DUR));if(t>=DUR){rec.stop();res();}else requestAnimationFrame(fr);}requestAnimationFrame(fr);});
+  await done;
+}
+window.__ready=false;
+load().then(()=>{buildBG();render(0);window.__ready=true;});
+window.render=render;window.record=record;
+</script></body></html>

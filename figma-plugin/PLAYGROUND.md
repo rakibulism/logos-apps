@@ -89,8 +89,19 @@ After publishing, replace the placeholder Community URL
 
 ```bash
 python3 scripts/gen_plugin_assets.py     # thumbnail, carousel, og, icons (Pillow-only)
-python3 scripts/gen_video.py             # walkthrough.mp4 (needs: pip install --user imageio-ffmpeg)
 ```
 
-Real logos come from the pre-rasterized tiles in `marketing/tiles/`. The MP4 uses the
-ffmpeg binary bundled by `imageio-ffmpeg` — no system ffmpeg required.
+Real logos come from the pre-rasterized tiles in `marketing/tiles/`.
+
+**Walkthrough video** (`marketing/walkthrough.mp4`) — a hand-coded Canvas UI animation,
+not a slideshow. Source: `marketing/walkthrough.anim.html`. To regenerate:
+
+1. Serve the repo locally and open `walkthrough.anim.html`.
+2. In the console run `record()` — it renders the ~15.6s animation, captures the canvas
+   with `MediaRecorder`, and saves `walkthrough.webm`.
+3. Transcode to MP4 (ffmpeg bundled by `pip install --user imageio-ffmpeg`):
+   ```
+   ffmpeg -y -i walkthrough.webm \
+     -vf "scale=1920:1080:flags=lanczos,fps=30,format=yuv420p" \
+     -c:v libx264 -profile:v high -crf 20 -movflags +faststart walkthrough.mp4
+   ```
