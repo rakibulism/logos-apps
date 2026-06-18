@@ -361,7 +361,9 @@ svg.icon { width: 1em; height: 1em; flex: none; }
 @media (min-width: 860px) { .grid { grid-template-columns: repeat(4, 1fr); } }
 @media (min-width: 1180px) { .grid { grid-template-columns: repeat(5, 1fr); } }
 .cell { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;
-  aspect-ratio: 1.25 / 1; background: var(--background); overflow: hidden; padding: 1.5rem 1rem 2rem; }
+  aspect-ratio: 1.25 / 1; background: var(--background); overflow: hidden; padding: 1.5rem 1rem 2rem;
+  content-visibility: auto; contain-intrinsic-size: auto 180px; }
+.row { content-visibility: auto; contain-intrinsic-size: auto 64px; }
 .cell img { max-width: 60%; max-height: 2.75rem; object-fit: contain; transition: transform .2s; }
 .cell:hover img { transform: scale(1.06); }
 .cell .cname { max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -1067,7 +1069,7 @@ const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 function cellHtml(it) {
   return `<div class="cell">
     <button class="favbtn${favs.has(it.n) ? " on" : ""}" type="button" data-fav="${esc(it.n)}" aria-pressed="${favs.has(it.n)}" aria-label="Favorite ${esc(it.n)}">${ic("heart")}</button>
-    <img src="logos/${it.n}.svg" alt="${esc(it.n)}" loading="lazy" />
+    <img src="logos/${it.n}.svg" alt="${esc(it.n)}" loading="lazy" decoding="async" />
     <span class="cname">${esc(it.n)}</span>
     <div class="cell-actions">
       <a class="pillbtn" href="logos/${it.n}.svg" download="${it.n}.svg">${ic("download")}SVG</a>
@@ -1078,7 +1080,7 @@ function cellHtml(it) {
 function rowHtml(it) {
   return `<div class="row">
     <div class="left">
-      <span class="thumb"><img src="logos/${it.n}.svg" alt="${esc(it.n)}" loading="lazy" /></span>
+      <span class="thumb"><img src="logos/${it.n}.svg" alt="${esc(it.n)}" loading="lazy" decoding="async" /></span>
       <span class="nm"><span class="n">${esc(it.n)}</span><span class="c">${esc(it.cat)}</span></span>
     </div>
     <div class="right">
@@ -1095,7 +1097,7 @@ function sponsorCellHtml() {
   return `<div class="cell sponsor" data-sponsor role="link" tabindex="0" aria-label="${SPONSOR.n} — sponsored, opens an external page">
     <span class="sponsor-ext" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
     <span class="badge-gold">${ic("crown")}Sponsored</span>
-    <img src="logos/${SPONSOR.n}.svg" alt="${SPONSOR.n}" loading="lazy" />
+    <img src="logos/${SPONSOR.n}.svg" alt="${SPONSOR.n}" loading="lazy" decoding="async" />
     <span class="cname">${SPONSOR.n}</span>
     <div class="cell-actions">
       <a class="pillbtn" href="logos/${SPONSOR.n}.svg" download="${SPONSOR.n}.svg">${ic("download")}SVG</a>
@@ -1106,7 +1108,7 @@ function sponsorCellHtml() {
 function sponsorRowHtml() {
   return `<div class="row sponsor" data-sponsor role="link" tabindex="0" aria-label="${SPONSOR.n} — sponsored, opens ${SPONSOR.url}">
     <div class="left">
-      <span class="thumb"><img src="logos/${SPONSOR.n}.svg" alt="${SPONSOR.n}" loading="lazy" /></span>
+      <span class="thumb"><img src="logos/${SPONSOR.n}.svg" alt="${SPONSOR.n}" loading="lazy" decoding="async" /></span>
       <span class="nm"><span class="n">${SPONSOR.n}</span><span class="c">${SPONSOR.tagline}</span></span>
     </div>
     <div class="right">
