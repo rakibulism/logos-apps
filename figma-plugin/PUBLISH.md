@@ -31,8 +31,8 @@ hunting the web, downloading files, or dragging SVGs in by hand. Search a brand,
 and it drops onto your canvas: clean, named, and ready to use.
 
 ▍ What you get
-• 15,000+ logos & wordmarks from an open-source collection, plus svgl’s curated brand
-  icons — switch sources with one tap.
+• 15,000+ logos & wordmarks from an open-source collection, synced daily so it's
+  always up to date.
 • Search & insert any logo in a single click.
 • Replace in place — swap a logo without breaking your layout. Every logo sits in a
   fixed square frame, so a 200×100 logo and a square icon both fit the same box and

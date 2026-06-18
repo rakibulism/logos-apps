@@ -43,11 +43,11 @@ canvas, with empty frames/rectangles people can target.
 > Choose a preset / **Custom…** size before inserting, or select any logo frame and
 > edit **W × H** in the plugin (Shift + ↑/↓ nudges by 4).
 
-### 5 · Two libraries
+### 5 · What's new
 
-> **Brands Logo + svgl.**
-> Use the tabs at the top to switch between this repo's 15,000+ logos and svgl's
-> curated brand icons.
+> **Stay up to date.**
+> Tap the bell in the toolbar to see what's new — new logos sync in daily, and
+> the dot lets you know when there's something fresh.
 
 ### Footer
 
@@ -74,7 +74,7 @@ When you publish the plugin (**Plugins → Development → Brands Logo → Publi
 3. `carousel-3.png` — replace in place (no distortion)
 4. `carousel-4.png` — auto size (fill any frame)
 5. `carousel-5.png` — sizes (auto / presets / custom)
-6. `carousel-6.png` — two libraries (Brands Logo + svgl)
+6. `carousel-6.png` — daily auto-sync / what's new (was: two libraries — regenerate)
 7. `carousel-7.png` — clean, named, non-destructive frames
 8. `carousel-8.png` — light / dark / device themes
 9. `carousel-9.png` — call to action

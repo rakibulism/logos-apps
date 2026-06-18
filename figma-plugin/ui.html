@@ -60,10 +60,6 @@
   .menu-foot a { color: var(--accent); text-decoration: none; }
 
   .row2 { margin-top: 6px; gap: 6px; }
-  .sources { display: flex; gap: 4px; margin-bottom: 8px; }
-  .sources .src { flex: 1; height: 30px; border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); font-weight: 500; font-size: 12px; }
-  .sources .src:hover { background: var(--hover); }
-  .sources .src.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
   .seg { display: inline-flex; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--panel); }
   .seg button { padding: 0 12px; height: 28px; color: var(--muted); }
   .seg button.active { background: var(--accent); color: var(--accent-fg); }
@@ -130,10 +126,6 @@
 <body data-mode-action="insert">
   <!-- toolbar -->
   <div class="toolbar">
-    <div class="sources">
-      <button id="srcRepo" class="src active" type="button">Brands Logo</button>
-      <button id="srcSvgl" class="src" type="button">svgl</button>
-    </div>
     <div class="row">
       <div class="search" id="searchWrap">
         <svg class="ic-search" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -251,10 +243,6 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25h6.83l4.713 6.231 5.447-6.231Zm-1.16 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
           <span>Creator — @rakibulism</span><span class="sub">X / Twitter</span>
         </a>
-        <a href="https://svgl.app" target="_blank" rel="noreferrer">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
-          <span>svgl library</span><span class="sub">svgl.app</span>
-        </a>
       </div>
       <div class="menu-foot" id="metaFoot"></div>
     </div>
@@ -265,16 +253,14 @@
   "use strict";
   var MANIFEST_URL = "https://raw.githubusercontent.com/rakibulism/brands-logo/master/assets/logos.json";
   var UPDATES_URL = "https://raw.githubusercontent.com/rakibulism/brands-logo/master/assets/updates.json";
-  var SVGL_API = "https://api.svgl.app";
   var PAGE = 150;
 
   var state = {
     all: [], rawBase: "", filtered: [], shown: 0,
-    q: "", cat: "all", mode: "insert", source: "repo",
+    q: "", cat: "all", mode: "insert",
     settings: { theme: "system", density: "default", size: 128, seenUpdate: "" },
     ratio: 1, lock: true, hasSel: false, updatesLatest: "",
   };
-  var repoData = null, svglData = null;
 
   var $ = function (id) { return document.getElementById(id); };
   var root = document.documentElement;
@@ -328,45 +314,21 @@
     stateEl.innerHTML = msg + "<br/><button class='btn' id='retry'>Retry</button>";
     var r = $("retry"); if (r) r.onclick = retry;
   }
-  function itemUrl(l) { return l.svgl ? l.route : state.rawBase + l.n + ".svg"; }
+  function itemUrl(l) { return state.rawBase + l.n + ".svg"; }
 
   function loadRepo() {
     showLoading("Loading logos…");
     fetch(MANIFEST_URL, { cache: "no-cache" })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(function (m) {
-        repoData = {
-          items: (m.logos || []).map(function (l) { return { n: l.n, c: l.c, svgl: false }; }),
+        activate({
+          items: (m.logos || []).map(function (l) { return { n: l.n, c: l.c }; }),
           base: m.rawBase,
           foot: (m.count ? m.count.toLocaleString() : (m.logos || []).length) + " logos · synced from " + m.repo,
           cats: (m.categories || []).map(function (c) { return { value: c.key, label: c.name + " (" + c.count + ")" }; }),
-        };
-        if (state.source === "repo") activate(repoData);
+        });
       })
-      .catch(function (e) { if (state.source === "repo") showError("Couldn't load logos (" + e.message + ").", loadRepo); });
-  }
-
-  function loadSvgl() {
-    showLoading("Loading svgl…");
-    fetch(SVGL_API, { cache: "no-cache" })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (arr) {
-        var count = {};
-        var items = (arr || []).map(function (s) {
-          var route = s.route;
-          var url = typeof route === "string" ? route : (route && (route.light || route.dark)) || "";
-          var slug = url.split("/").pop().replace(/\.svg$/i, "");
-          var cats = (Array.isArray(s.category) ? s.category : [s.category]).filter(Boolean).map(String);
-          cats.forEach(function (c) { count[c] = (count[c] || 0) + 1; });
-          // <img> loads from svgl.app (no CORS needed); fetch goes through the
-          // CORS-enabled API endpoint so we can read the SVG text.
-          return { n: s.title, route: url, fetchUrl: "https://api.svgl.app/svg/" + slug + ".svg", c: cats[0] || "Other", cats: cats, svgl: true };
-        }).filter(function (it) { return it.route; });
-        var cats = Object.keys(count).sort().map(function (c) { return { value: c, label: c + " (" + count[c] + ")" }; });
-        svglData = { items: items, base: "", foot: items.length + " icons · svgl.app", cats: cats };
-        if (state.source === "svgl") activate(svglData);
-      })
-      .catch(function (e) { if (state.source === "svgl") showError("Couldn't reach svgl.app (" + e.message + ").", loadSvgl); });
+      .catch(function (e) { showError("Couldn't load logos (" + e.message + ").", loadRepo); });
   }
 
   function activate(data) {
@@ -382,27 +344,10 @@
     applyFilter();
   }
 
-  function setSource(src) {
-    if (state.source === src) return;
-    state.source = src;
-    $("srcRepo").classList.toggle("active", src === "repo");
-    $("srcSvgl").classList.toggle("active", src === "svgl");
-    $("search").value = ""; $("searchWrap").classList.remove("has-val"); state.q = "";
-    $("search").placeholder = src === "svgl" ? "Search svgl icons…" : "Search 15,000+ logos…";
-    grid.innerHTML = ""; state.shown = 0;
-    var data = src === "repo" ? repoData : svglData;
-    if (data) activate(data);
-    else if (src === "repo") loadRepo(); else loadSvgl();
-  }
-  $("srcRepo").addEventListener("click", function () { setSource("repo"); });
-  $("srcSvgl").addEventListener("click", function () { setSource("svgl"); });
-
   function applyFilter() {
     var q = state.q.trim().toLowerCase().replace(/[\s_-]/g, "");
     state.filtered = state.all.filter(function (l) {
-      if (state.cat !== "all") {
-        if (l.svgl ? (l.cats.indexOf(state.cat) < 0) : (l.c !== state.cat)) return false;
-      }
+      if (state.cat !== "all" && l.c !== state.cat) return false;
       if (q && (l.n + " " + (l.c || "")).toLowerCase().replace(/[\s_-]/g, "").indexOf(q) === -1) return false;
       return true;
     });
@@ -426,7 +371,7 @@
       var cell = document.createElement("button");
       cell.className = "cell"; cell.title = l.n;
       cell.setAttribute("data-n", l.n);
-      cell.setAttribute("data-fetch", l.svgl ? l.fetchUrl : url);
+      cell.setAttribute("data-fetch", url);
       var img = document.createElement("img");
       img.loading = "lazy"; img.src = url; img.alt = l.n;
       var cn = document.createElement("span");
