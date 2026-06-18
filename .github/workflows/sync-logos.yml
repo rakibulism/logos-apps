@@ -1,0 +1,54 @@
+name: Sync logos from upstream
+
+# Keeps this repo's logos (and assets/logos.json) up to date with the upstream
+# collection automatically, so the Figma plugin + website always have the latest —
+# no manual work. Runs weekly, and can be triggered by hand from the Actions tab.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday 06:00 UTC
+  workflow_dispatch: {}    # manual "Run workflow" button
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-logos
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull only the logos/ folder from upstream
+        run: |
+          git remote add upstream https://github.com/ln-dev7/logos-apps.git || true
+          git fetch --no-tags --depth=1 upstream master
+          git checkout upstream/master -- logos/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Regenerate README, categories, index.html + assets/logos.json
+        run: python3 scripts/gen_site.py
+
+      - name: Commit & push if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No new or changed logos — nothing to do."
+          else
+            COUNT=$(git diff --cached --name-only -- logos/ | wc -l | tr -d ' ')
+            git commit -m "chore: sync logos from upstream (automated, ${COUNT} logo files changed)"
+            git push
+            echo "Synced ${COUNT} changed logo files."
+          fi
