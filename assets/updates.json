@@ -4,6 +4,12 @@
     {
       "date": "2026-06-18",
       "tag": "new",
+      "title": "v1.0.0 released 🚀",
+      "body": "First stable release. Brands Logo ships with 15,000+ SVG logos on the web, a public assets/logos.json manifest, a published Figma plugin (insert, replace-in-place, resize, two libraries), light/dark/device themes, keyboard shortcuts, PWA install, and a daily auto-sync that keeps the collection fresh."
+    },
+    {
+      "date": "2026-06-18",
+      "tag": "new",
       "title": "Figma plugin is live 🎉",
       "body": "Brands Logo is now published on the Figma Community — search, insert, replace and resize 15,000+ logos right inside Figma. Install it from the header button or figma.com/community/plugin/1649190957969710872."
     },
