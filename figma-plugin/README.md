@@ -7,6 +7,10 @@ new ones are added.
 
 ## Features
 
+- **One unified library** — the repo's 15,000+ logos are merged with **svgl.app**'s
+  curated brand icons into a single searchable list (svgl entries that duplicate a
+  repo logo are skipped). Both sources are fetched live, so the library stays current;
+  if svgl is unreachable the full repo still loads.
 - **Search & insert** — type a brand, click to drop it onto the canvas. Each logo
   lands inside a **fixed square frame** with the SVG scaled to fit (its own aspect
   ratio preserved, centered). Pick the size from the toolbar dropdown — a fixed

@@ -6,8 +6,8 @@
   "ui": "ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["https://raw.githubusercontent.com"],
-    "reasoning": "Fetches the logo manifest (assets/logos.json), the updates feed (assets/updates.json) and SVG logos from the brands-logo GitHub repository."
+    "allowedDomains": ["https://raw.githubusercontent.com", "https://api.svgl.app", "https://svgl.app"],
+    "reasoning": "Fetches the logo manifest (assets/logos.json), the updates feed (assets/updates.json) and SVG logos from the brands-logo GitHub repository, merged with svgl.app's curated icons (api.svgl.app + svgl.app) into one library."
   },
   "documentAccess": "dynamic-page"
 }

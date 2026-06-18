@@ -74,7 +74,7 @@ When you publish the plugin (**Plugins → Development → Brands Logo → Publi
 3. `carousel-3.png` — replace in place (no distortion)
 4. `carousel-4.png` — auto size (fill any frame)
 5. `carousel-5.png` — sizes (auto / presets / custom)
-6. `carousel-6.png` — daily auto-sync / what's new (was: two libraries — regenerate)
+6. `carousel-6.png` — one unified library (repo + svgl merged; no tabs — regenerate)
 7. `carousel-7.png` — clean, named, non-destructive frames
 8. `carousel-8.png` — light / dark / device themes
 9. `carousel-9.png` — call to action

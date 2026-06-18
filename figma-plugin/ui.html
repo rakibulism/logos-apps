@@ -243,6 +243,10 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25h6.83l4.713 6.231 5.447-6.231Zm-1.16 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"/></svg>
           <span>Creator — @rakibulism</span><span class="sub">X / Twitter</span>
         </a>
+        <a href="https://svgl.app" target="_blank" rel="noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></svg>
+          <span>Icons partly from svgl</span><span class="sub">svgl.app</span>
+        </a>
       </div>
       <div class="menu-foot" id="metaFoot"></div>
     </div>
@@ -253,6 +257,7 @@
   "use strict";
   var MANIFEST_URL = "https://raw.githubusercontent.com/rakibulism/brands-logo/master/assets/logos.json";
   var UPDATES_URL = "https://raw.githubusercontent.com/rakibulism/brands-logo/master/assets/updates.json";
+  var SVGL_API = "https://api.svgl.app";
   var PAGE = 150;
 
   var state = {
@@ -314,21 +319,50 @@
     stateEl.innerHTML = msg + "<br/><button class='btn' id='retry'>Retry</button>";
     var r = $("retry"); if (r) r.onclick = retry;
   }
-  function itemUrl(l) { return state.rawBase + l.n + ".svg"; }
+  function itemUrl(l) { return l.svgl ? l.route : state.rawBase + l.n + ".svg"; }
+  function norm(s) { return String(s == null ? "" : s).toLowerCase().replace(/[\s_-]/g, ""); }
 
-  function loadRepo() {
+  // One library, two sources merged: the GitHub repo (15,000+ logos) plus svgl.app's
+  // curated icons, fetched live so both stay current. svgl is a bonus — if it can't
+  // be reached we still show the full repo.
+  function loadAll() {
     showLoading("Loading logos…");
+    var svglP = fetch(SVGL_API, { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .catch(function () { return []; });
     fetch(MANIFEST_URL, { cache: "no-cache" })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then(function (m) {
-        activate({
-          items: (m.logos || []).map(function (l) { return { n: l.n, c: l.c }; }),
-          base: m.rawBase,
-          foot: (m.count ? m.count.toLocaleString() : (m.logos || []).length) + " logos · synced from " + m.repo,
-          cats: (m.categories || []).map(function (c) { return { value: c.key, label: c.name + " (" + c.count + ")" }; }),
-        });
-      })
-      .catch(function (e) { showError("Couldn't load logos (" + e.message + ").", loadRepo); });
+      .then(function (m) { return svglP.then(function (arr) { mergeAndActivate(m, arr); }); })
+      .catch(function (e) { showError("Couldn't load logos (" + e.message + ").", loadAll); });
+  }
+
+  function mergeAndActivate(m, arr) {
+    var items = (m.logos || []).map(function (l) { return { n: l.n, c: l.c, svgl: false }; });
+    var seen = {};
+    items.forEach(function (it) { seen[norm(it.n)] = true; });
+
+    var svglCount = {};
+    var svglItems = (arr || []).map(function (s) {
+      var route = s.route;
+      var url = typeof route === "string" ? route : (route && (route.light || route.dark)) || "";
+      var slug = url.split("/").pop().replace(/\.svg$/i, "");
+      var cats = (Array.isArray(s.category) ? s.category : [s.category]).filter(Boolean).map(String);
+      // <img> loads from svgl.app; the SVG text comes from the CORS-enabled API.
+      return { n: s.title, route: url, fetchUrl: "https://api.svgl.app/svg/" + slug + ".svg", c: cats[0] || "Other", cats: cats, svgl: true };
+    }).filter(function (it) { return it.route && !seen[norm(it.n)]; });   // skip svgl dupes already in the repo
+    svglItems.forEach(function (it) { it.cats.forEach(function (c) { svglCount[c] = (svglCount[c] || 0) + 1; }); });
+
+    var cats = (m.categories || []).map(function (c) { return { value: c.key, label: c.name + " (" + c.count + ")" }; });
+    var seenCat = {};
+    cats.forEach(function (c) { seenCat[c.value] = true; });
+    Object.keys(svglCount).sort().forEach(function (c) {
+      if (!seenCat[c]) { cats.push({ value: c, label: c + " (" + svglCount[c] + ")" }); seenCat[c] = true; }
+    });
+
+    var all = items.concat(svglItems);
+    var foot = all.length.toLocaleString() + " logos · " + (m.repo || "brands-logo") +
+      (svglItems.length ? " + svgl.app" : "");
+    activate({ items: all, base: m.rawBase, foot: foot, cats: cats });
   }
 
   function activate(data) {
@@ -347,7 +381,9 @@
   function applyFilter() {
     var q = state.q.trim().toLowerCase().replace(/[\s_-]/g, "");
     state.filtered = state.all.filter(function (l) {
-      if (state.cat !== "all" && l.c !== state.cat) return false;
+      if (state.cat !== "all") {
+        if (l.svgl ? (l.cats.indexOf(state.cat) < 0) : (l.c !== state.cat)) return false;
+      }
       if (q && (l.n + " " + (l.c || "")).toLowerCase().replace(/[\s_-]/g, "").indexOf(q) === -1) return false;
       return true;
     });
@@ -371,7 +407,7 @@
       var cell = document.createElement("button");
       cell.className = "cell"; cell.title = l.n;
       cell.setAttribute("data-n", l.n);
-      cell.setAttribute("data-fetch", url);
+      cell.setAttribute("data-fetch", l.svgl ? l.fetchUrl : url);
       var img = document.createElement("img");
       img.loading = "lazy"; img.src = url; img.alt = l.n;
       var cn = document.createElement("span");
@@ -588,7 +624,7 @@
   };
 
   applyAppearance();
-  loadRepo();
+  loadAll();
   loadUpdates();
   parent.postMessage({ pluginMessage: { type: "ready" } }, "*");
 })();
