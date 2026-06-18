@@ -79,9 +79,8 @@ When you publish the plugin (**Plugins → Development → Brands Logo → Publi
 8. `carousel-8.png` — light / dark / device themes
 9. `carousel-9.png` — call to action
 
-After publishing, replace the placeholder Community URL
-(`…/plugin/0000000000/brands-logo`) in `scripts/site_template.html`, `docs.html`,
-`updates.html` with the real link, then run `python3 scripts/gen_site.py`.
+Published at: **https://www.figma.com/community/plugin/1649190957969710872**
+(wired into `scripts/site_template.html`, `docs.html`, `updates.html`).
 
 ---
 

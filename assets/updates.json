@@ -4,6 +4,12 @@
     {
       "date": "2026-06-18",
       "tag": "new",
+      "title": "Figma plugin is live 🎉",
+      "body": "Brands Logo is now published on the Figma Community — search, insert, replace and resize 15,000+ logos right inside Figma. Install it from the header button or figma.com/community/plugin/1649190957969710872."
+    },
+    {
+      "date": "2026-06-18",
+      "tag": "new",
       "title": "Export sizes + keyboard shortcuts",
       "body": "Pick an export size for copied/downloaded SVGs from the toolbar (incl. Custom). Press ? to see all shortcuts — F install, N notifications, G GitHub, L/D/D-D themes, Shift+H/D/U to navigate. Shift-click a copy button still grabs the raw SVG instantly, now with a toast."
     },
